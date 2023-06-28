@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Coomidex</title>
+    <style>
+
+        body {
+            background: linear-gradient(to right, #0000FF, #FFFF00);
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(20, 5%); /* Creates 20 image columns */
+            justify-content: center;
+            gap: 0px; /* No gap between images */
+        }
+        .grid-item {
+            position: relative;
+            width: 100%;
+            overflow: hidden; /* Ensure the image does not exceed the grid item dimensions */
+            padding-top: 100%; /* Force a 1:1 aspect ratio */
+        }
+        .grid-item img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Force the image to fit within its container */
+        }
+        .floating-image {
+            position: absolute;
+            pointer-events: none;
+            width: 70px; /* Adjust the size as needed */
+            display: none;
+        }
+    </style>
+    <script>
+        // This is the list of your image files from 1 to 151
+        var imageFiles = Array.from({length: 151}, (_, i) => (i + 1) + '.png');
+
+        window.onload = function() {
+            var gridContainer = document.querySelector('.grid-container');
+            var floatingImage = document.querySelector('.floating-image');
+
+            // Dynamically create grid items
+            imageFiles.forEach(function(imageFile) {
+                var gridItem = document.createElement('div');
+                gridItem.className = 'grid-item';
+
+                var smallPic = document.createElement('img');
+                smallPic.src = 'small pics/' + imageFile;
+
+                gridItem.addEventListener('mouseover', function(e) {
+                    floatingImage.src = 'card pics/' + imageFile;
+                    floatingImage.style.display = 'block';
+                    updateImagePosition(e);
+                });
+
+                gridItem.addEventListener('mousemove', updateImagePosition);
+
+                gridItem.addEventListener('mouseout', function() {
+                    floatingImage.style.display = 'none';
+                });
+
+                gridItem.appendChild(smallPic);
+                gridContainer.appendChild(gridItem);
+            });
+
+            function updateImagePosition(e) {
+                floatingImage.style.left = (e.pageX - floatingImage.offsetWidth / 2) + 'px';
+                if (e.pageY > window.innerHeight / 2) {
+                    floatingImage.style.top = (e.pageY - floatingImage.offsetHeight - 5) + 'px';
+                } else {
+                    floatingImage.style.top = (e.pageY + 5) + 'px';
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="grid-container">
+        <!-- Grid items will be inserted here by JavaScript -->
+    </div>
+
+    <!-- This image will be used to display the card pics on hover -->
+    <img class="floating-image" src="">
+</body>
+</html>
