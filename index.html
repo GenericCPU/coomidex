@@ -9,6 +9,20 @@
             background: linear-gradient(to right, #0000FF, #FFFF00);
         }
 
+        #price {
+            position: absolute;
+            pointer-events: none;
+            display: none;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: 'white';
+            border-radius: '5px';
+            font-weight: 'bold';
+            visibility: hidden;
+            /* Add this line */
+        }
+
+
         .grid-container {
             display: grid;
             grid-template-columns: repeat(20, 5%);
@@ -43,6 +57,7 @@
             width: 250px;
             /* Adjust the size as needed */
             display: none;
+            visibility: hidden;
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
@@ -214,13 +229,14 @@
             priceElement.style.position = 'absolute';
             priceElement.style.pointerEvents = 'none';
             priceElement.style.display = 'none';
+            priceElement.style.visibility = 'hidden';
             priceElement.style.padding = '10px';
             priceElement.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
             priceElement.style.color = 'white';
             priceElement.style.borderRadius = '5px';
             priceElement.style.fontWeight = 'bold';
+            priceElement.id = 'price';
             document.body.appendChild(priceElement);
-
 
             // Dynamically create grid items
             imageFiles.forEach(function (imageFile, index) {
@@ -229,7 +245,6 @@
 
                 var smallPic = document.createElement('img');
                 smallPic.src = 'small pics/' + imageFile;
-                updateImagePosition({ pageX: 0, pageY: 0 });
                 gridItem.addEventListener('mouseover', function (e) {
                     floatingImage.src = 'card pics/' + imageFile;
                     floatingImage.style.display = 'block';
@@ -253,14 +268,27 @@
                             // Display the price
                             priceElement.textContent = 'Price: ' + data.items[0].itemListing.price + "BSV";
                             priceElement.style.display = 'block';
+
+                            // Update image position after all elements are set up
+                            updateImagePosition(e);
+
+                            // Make the elements visible
+                            floatingImage.style.visibility = 'visible';
+                            qrImage.style.visibility = 'visible';
+                            priceElement.style.visibility = 'visible';
                         })
                         .catch(console.error);
-
-                    updateImagePosition(e);
                 });
 
                 gridItem.addEventListener('mousemove', updateImagePosition);
-
+                gridItem.addEventListener('mouseout', function () {
+                    floatingImage.style.display = 'none';
+                    floatingImage.style.visibility = 'hidden';
+                    qrImage.style.display = 'none';
+                    qrImage.style.visibility = 'hidden';
+                    priceElement.style.display = 'none';
+                    priceElement.style.visibility = 'hidden';
+                });
                 gridItem.addEventListener('mouseout', function () {
                     floatingImage.style.display = 'none';
                     qrImage.style.display = 'none';
