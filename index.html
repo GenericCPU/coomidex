@@ -57,7 +57,6 @@
             width: 250px;
             /* Adjust the size as needed */
             display: none;
-            visibility: hidden;
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
@@ -238,6 +237,8 @@
             priceElement.id = 'price';
             document.body.appendChild(priceElement);
 
+            var timeoutId = null;
+
             // Dynamically create grid items
             imageFiles.forEach(function (imageFile, index) {
                 var gridItem = document.createElement('div');
@@ -245,39 +246,46 @@
 
                 var smallPic = document.createElement('img');
                 smallPic.src = 'small pics/' + imageFile;
+
                 gridItem.addEventListener('mouseover', function (e) {
-                    floatingImage.src = 'card pics/' + imageFile;
-                    floatingImage.style.display = 'block';
+                    // clear the previous timeout if exists
+                    if (timeoutId) clearTimeout(timeoutId);
 
-                    // Make the API call to get the QR Code
-                    var name = names[index];
-                    fetch(`https://cloud.handcash.io/v3/itemListing?status=active&sort=price&order=asc&from=0&to=1&collectionId=6490ea8acf3da0ed972764c3&searchString=${name}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            var qrCodeUrl = data.items[0].itemListing.paymentRequestUrl;
-                            console.log(qrCodeUrl);
+                    // delay function
+                    timeoutId = setTimeout(function () {
+                        floatingImage.src = 'card pics/' + imageFile;
+                        floatingImage.style.display = 'block';
 
-                            // create the QR code
-                            var qr = new QRious({
-                                element: qrImage,
-                                value: qrCodeUrl
-                            });
+                        // Make the API call to get the QR Code
+                        var name = names[index];
+                        fetch(`https://cloud.handcash.io/v3/itemListing?status=active&sort=price&order=asc&from=0&to=1&collectionId=6490ea8acf3da0ed972764c3&searchString=${name}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                var qrCodeUrl = data.items[0].itemListing.paymentRequestUrl;
+                                console.log(qrCodeUrl);
 
-                            qrImage.style.display = 'block';
+                                // create the QR code
+                                var qr = new QRious({
+                                    element: qrImage,
+                                    value: qrCodeUrl
+                                });
 
-                            // Display the price
-                            priceElement.textContent = 'Price: ' + data.items[0].itemListing.price + "BSV";
-                            priceElement.style.display = 'block';
+                                qrImage.style.display = 'block';
 
-                            // Update image position after all elements are set up
-                            updateImagePosition(e);
+                                // Display the price
+                                priceElement.textContent = 'Price: ' + data.items[0].itemListing.price + "BSV";
+                                priceElement.style.display = 'block';
 
-                            // Make the elements visible
-                            floatingImage.style.visibility = 'visible';
-                            qrImage.style.visibility = 'visible';
-                            priceElement.style.visibility = 'visible';
-                        })
-                        .catch(console.error);
+                                // Update image position after all elements are set up
+                                updateImagePosition(e);
+
+                                // Make the elements visible
+                                floatingImage.style.visibility = 'visible';
+                                qrImage.style.visibility = 'visible';
+                                priceElement.style.visibility = 'visible';
+                            })
+                            .catch(console.error);
+                    }, 170); // The delay time is set to 300ms
                 });
 
                 gridItem.addEventListener('mousemove', updateImagePosition);
@@ -288,15 +296,15 @@
                     qrImage.style.visibility = 'hidden';
                     priceElement.style.display = 'none';
                     priceElement.style.visibility = 'hidden';
-                });
-                gridItem.addEventListener('mouseout', function () {
-                    floatingImage.style.display = 'none';
-                    qrImage.style.display = 'none';
+
+                    // clear the timeout when mouseout
+                    if (timeoutId) clearTimeout(timeoutId);
                 });
 
                 gridItem.appendChild(smallPic);
                 gridContainer.appendChild(gridItem);
             });
+
             function updateImagePosition(e) {
                 var floatingImageWidth = floatingImage.offsetWidth;
                 var qrImageWidth = qrImage.offsetWidth;
