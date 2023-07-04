@@ -261,7 +261,7 @@
                         fetch(`https://cloud.handcash.io/v3/itemListing?status=active&sort=price&order=asc&from=0&to=1&collectionId=6490ea8acf3da0ed972764c3&searchString=${name}`)
                             .then(response => response.json())
                             .then(data => {
-                                var qrCodeUrl = data.items[0].itemListing.paymentRequestUrl;
+                                var qrCodeUrl = (data.items[0].itemListing.paymentRequestUrl) + "?platform=coomidex";
                                 console.log(qrCodeUrl);
 
                                 // create the QR code
