@@ -57,6 +57,14 @@
             width: 250px;
             /* Adjust the size as needed */
             display: none;
+            /* Add a white border around the image */
+        }        
+        .floating-qr {
+            position: absolute;
+            pointer-events: none;
+            width: 250px;
+            /* Adjust the size as needed */
+            display: none;
             border: 5px solid white;
             /* Add a white border around the image */
         }
@@ -347,7 +355,7 @@
     <img class="floating-image" src="">
 
     <!-- QR Code will be generated on this canvas -->
-    <canvas id="qr" class="floating-image"></canvas>
+    <canvas id="qr" class="floating-qr"></canvas>
 </body>
 
 </html>
