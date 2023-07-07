@@ -58,7 +58,8 @@
             /* Adjust the size as needed */
             display: none;
             /* Add a white border around the image */
-        }        
+        }
+
         .floating-qr {
             position: absolute;
             pointer-events: none;
@@ -293,6 +294,10 @@
                                 floatingImage.style.visibility = 'visible';
                                 qrImage.style.visibility = 'visible';
                                 priceElement.style.visibility = 'visible';
+                                // Add a click listener to open the URL
+                                gridItem.addEventListener('click', function () {
+                                    window.open(qrCodeUrl, '_blank');
+                                });
                             })
                             .catch(console.error);
                     }, 170); // The delay time is set to 300ms
