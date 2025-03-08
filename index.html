@@ -189,6 +189,21 @@
       flex: 1;
       overflow: hidden;
     }
+    .champion-info {
+      width: 100%;
+      margin-bottom: 15px;
+    }
+    .champion-info .champion-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 5px;
+    }
+    .champion-info .champion-rarity {
+      font-size: 14px;
+      font-weight: bold;
+      color: #aaa;
+    }
     .evolutions-label {
       font-size: 14px;
       color: #aaa;
@@ -373,8 +388,6 @@
     <!-- ORANGE PANEL -->
     <div class="champion-panel" id="orangePanel">
       <div class="panel-top-bar orange">
-        <div class="champion-title" id="orangeTitle">Champion ?</div>
-        <div class="champion-rarity" id="orangeRarity">Rare</div>
       </div>
       <div class="panel-content">
         <!-- LEFT COLUMN => champion card -->
@@ -383,6 +396,10 @@
         </div>
         <!-- RIGHT COLUMN => evolutions, stats, buy button -->
         <div class="info-column">
+          <div class="champion-info">
+            <div class="champion-title" id="orangeTitle">Champion ?</div>
+            <div class="champion-rarity" id="orangeRarity">--</div>
+          </div>
           <div class="evolutions-label">Evolutions</div>
           <div class="evolutions-row" id="orangeEvolutions"></div>
           <div class="stats-line" id="orangeStats">--</div>
@@ -394,8 +411,6 @@
     <!-- BLUE PANEL -->
     <div class="champion-panel" id="bluePanel">
       <div class="panel-top-bar blue">
-        <div class="champion-title" id="blueTitle">Champion ?</div>
-        <div class="champion-rarity" id="blueRarity">Rare</div>
       </div>
       <div class="panel-content">
         <!-- LEFT COLUMN => champion card -->
@@ -404,6 +419,10 @@
         </div>
         <!-- RIGHT COLUMN => evolutions, stats, buy button -->
         <div class="info-column">
+          <div class="champion-info">
+            <div class="champion-title" id="blueTitle">Champion ?</div>
+            <div class="champion-rarity" id="blueRarity">--</div>
+          </div>
           <div class="evolutions-label">Evolutions</div>
           <div class="evolutions-row" id="blueEvolutions"></div>
           <div class="stats-line" id="blueStats"></div>
