@@ -1,0 +1,189 @@
+<script>
+  /*******************************************************
+   * 1) LOAD JSON AND CREATE THE GRID
+   *******************************************************/
+  let championsData = [];
+
+  // Fetch the JSON file (save your data as 'champions.json')
+  fetch('champions.json')
+    .then(response => response.json())
+    .then(data => {
+      championsData = data;
+      createGrid();
+    })
+    .catch(error => console.error('Error loading champions:', error));
+
+  function createGrid() {
+    const gridContainer = document.getElementById('gridContainer');
+    gridContainer.innerHTML = '';
+
+    // Limit to first 150 champions to match your image files
+    const displayChampions = championsData.filter(champ => champ.championNumber <= 150);
+
+    displayChampions.forEach(champion => {
+      const div = document.createElement('div');
+      div.classList.add('grid-item');
+      div.dataset.championNumber = champion.championNumber;
+      div.dataset.cardImg = `card pics/${champion.championNumber}.png`;
+
+      const img = document.createElement('img');
+      img.src = `card pics/${champion.championNumber}.png`; // Using same path for simplicity
+      img.alt = champion.name;
+
+      div.appendChild(img);
+      gridContainer.appendChild(div);
+
+      div.addEventListener('click', () => {
+        if (!activeCoin) {
+          activeCoin = document.getElementById('selectorOrange');
+        }
+        placeCoinOnSquare(activeCoin, div);
+      });
+    });
+  }
+
+  /*******************************************************
+   * 2) DRAGGABLE COINS (unchanged from original)
+   *******************************************************/
+  let activeCoin = null;
+  let draggingCoin = null;
+  let offsetX = 0, offsetY = 0;
+  let currentHighlightedItem = null;
+  let selectedItemOrange = null;
+  let selectedItemBlue = null;
+
+  const selectorOrange = document.getElementById('selectorOrange');
+  const selectorBlue   = document.getElementById('selectorBlue');
+
+  document.addEventListener('mousedown', e => {
+    if (e.target === selectorOrange || e.target === selectorBlue) {
+      draggingCoin = e.target;
+      activeCoin = draggingCoin;
+      const rect = draggingCoin.getBoundingClientRect();
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
+    }
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (draggingCoin) {
+      draggingCoin.style.left = (e.clientX - offsetX) + 'px';
+      draggingCoin.style.top  = (e.clientY - offsetY) + 'px';
+      updateHighlight(draggingCoin);
+    }
+  });
+
+  document.addEventListener('mouseup', e => {
+    if (draggingCoin) {
+      if (currentHighlightedItem) {
+        currentHighlightedItem.classList.remove('highlight-orange', 'highlight-blue');
+      }
+      const rect = draggingCoin.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      draggingCoin.style.pointerEvents = 'none';
+      let below = document.elementFromPoint(centerX, centerY);
+      draggingCoin.style.pointerEvents = 'auto';
+
+      if (below && below.closest('.grid-item')) {
+        const gridItem = below.closest('.grid-item');
+        selectChampion(draggingCoin, gridItem);
+      }
+      draggingCoin = null;
+      currentHighlightedItem = null;
+    }
+  });
+
+  function updateHighlight(coin) {
+    const rect = coin.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    coin.style.pointerEvents = 'none';
+    let below = document.elementFromPoint(centerX, centerY);
+    coin.style.pointerEvents = 'auto';
+
+    if (currentHighlightedItem) {
+      currentHighlightedItem.classList.remove('highlight-orange', 'highlight-blue');
+      currentHighlightedItem = null;
+    }
+    if (beyond && below.closest('.grid-item')) {
+      currentHighlightedItem = below.closest('.grid-item');
+      const highlightClass = (coin === selectorOrange) ? 'highlight-orange' : 'highlight-blue';
+      currentHighlightedItem.classList.add(highlightClass);
+    }
+  }
+
+  function placeCoinOnSquare(coin, gridItem) {
+    const gridRect = gridItem.getBoundingClientRect();
+    const coinRect = coin.getBoundingClientRect();
+    const centerX = gridRect.left + (gridRect.width / 2) - (coinRect.width / 2);
+    const centerY = gridRect.top + (gridRect.height / 2) - (coinRect.height / 2);
+    coin.style.left = centerX + 'px';
+    coin.style.top  = centerY + 'px';
+    selectChampion(coin, gridItem);
+  }
+
+  function selectChampion(coin, gridItem) {
+    const champNum = gridItem.dataset.championNumber;
+    const cardImg = gridItem.dataset.cardImg;
+    if (coin === selectorOrange) {
+      if (selectedItemOrange && selectedItemOrange !== gridItem) {
+        selectedItemOrange.classList.remove('selected-orange');
+      }
+      selectedItemOrange = gridItem;
+      gridItem.classList.add('selected-orange');
+      updateChampionPanel('orange', champNum, cardImg);
+    } else {
+      if (selectedItemBlue && selectedItemBlue !== gridItem) {
+        selectedItemBlue.classList.remove('selected-blue');
+      }
+      selectedItemBlue = gridItem;
+      gridItem.classList.add('selected-blue');
+      updateChampionPanel('blue', champNum, cardImg);
+    }
+  }
+
+  /*******************************************************
+   * 3) UPDATE BOTTOM PANELS WITH JSON DATA
+   *******************************************************/
+  function updateChampionPanel(coin, champNum, cardImg) {
+    const champion = championsData.find(champ => champ.championNumber === parseInt(champNum));
+    if (!champion) return;
+
+    const titleEl  = document.getElementById(coin + 'Title');
+    const rarityEl = document.getElementById(coin + 'Rarity');
+    const imgEl    = document.getElementById(coin + 'CardImg');
+    const evoEl    = document.getElementById(coin + 'Evolutions');
+    const statsEl  = document.getElementById(coin + 'Stats');
+    const buyBtnEl = document.getElementById(coin + 'BuyBtn');
+
+    titleEl.textContent  = champion.name;
+    rarityEl.textContent = champion.rarity;
+    imgEl.src            = cardImg;
+    imgEl.alt            = champion.name;
+    imgEl.style.display  = 'block';
+
+    evoEl.innerHTML = '';
+    const evolutions = champion.evolutions.split(',').map(evo => evo.trim());
+    if (evolutions.length > 0 && evolutions[0] !== '') {
+      evolutions.forEach(evo => {
+        const div = document.createElement('div');
+        div.textContent = evo;
+        evoEl.appendChild(div);
+      });
+    } else {
+      const div = document.createElement('div');
+      div.textContent = 'None';
+      evoEl.appendChild(div);
+    }
+
+    // Custom stats display using your JSON fields
+    const price = (champion.manaCost * 0.001).toFixed(3); // Example price based on manaCost
+    statsEl.textContent = `${champion.attack}/${champion.health} ATK/HP, ${champion.element}, ${price} BTC`;
+
+    buyBtnEl.style.display = 'inline-block';
+    buyBtnEl.onclick = () => {
+      alert(`Buying ${champion.name} (No. ${champion.championNumber}) for ${price} BTC on the ${coin} side!`);
+    };
+  }
+</script>

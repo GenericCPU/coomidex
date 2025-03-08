@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>CoOMidex - Coins Relative to Scroll & Alternate Click</title>
+  <title>CoOMidex - Final Two-Column Panels</title>
   <style>
     /* RESET */
     * {
@@ -14,7 +14,7 @@
       background-color: #000;
       color: #fff;
       font-family: sans-serif;
-      overflow: hidden; /* We scroll in .main-content, not in body */
+      overflow: hidden; /* We scroll in .main-content, not the body */
     }
 
     /* TOP BAR */
@@ -34,16 +34,15 @@
       font-weight: bold;
     }
 
-    /* SCROLLABLE MIDDLE SECTION */
+    /* SCROLLABLE MIDDLE GRID */
     .main-content {
       position: absolute;
-      top: 60px;        /* below header */
-      bottom: 320px;    /* above bottom dash */
+      top: 60px;         /* below header */
+      bottom: 320px;     /* above bottom dash */
       left: 0; right: 0;
-      background-color: #1b1b1b;
       overflow-y: auto;
       padding: 20px;
-      position: relative; /* so coins can be absolutely placed inside */
+      background-color: #1b1b1b;
     }
     .grid-container {
       display: grid;
@@ -72,7 +71,7 @@
       border-radius: 4px;
     }
 
-    /* HOLLOW OUTLINES */
+    /* HOLLOW OUTLINES (no fill) */
     .highlight-orange {
       border: 3px dashed orange;
       background: transparent;
@@ -94,18 +93,18 @@
       border-radius: 8px;
     }
 
-    /* BOTTOM DASH (two adjacent panels) */
+    /* BOTTOM DASH (two adjacent panels, no gap) */
     footer {
       position: fixed;
       bottom: 0; left: 0;
       width: 100%;
       height: 320px;
-      background-color: #000;
+      background-color: #000; /* same as page */
       z-index: 1000;
       display: flex;
       align-items: flex-start;
-      justify-content: center;
-      gap: 0; /* no gap between panels */
+      justify-content: center; 
+      gap: 0; /* no gap in the middle */
       padding: 0;
     }
 
@@ -113,9 +112,10 @@
     .champion-panel {
       position: relative;
       width: 50%;
-      height: 100%;
+      height: 100%;  /* fill entire 320px footer */
       display: flex;
       flex-direction: column;
+      border-radius: 0; /* no extra background color */
     }
 
     /* SLEEK TOP BAR (reduced height) */
@@ -124,9 +124,9 @@
       align-items: center;
       justify-content: space-between;
       padding: 0 15px;
-      height: 35px; /* narrower bar */
-      border-top-left-radius: 4px;
-      border-top-right-radius: 4px;
+      height: 30px; /* narrower bar */
+      border-top-left-radius: 0px;
+      border-top-right-radius: 0px;
       flex-shrink: 0;
     }
     .panel-top-bar.orange { background-color: #ff9c00; }
@@ -138,28 +138,32 @@
       color: #fff;
     }
     .champion-rarity {
-      font-size: 12px;
+      font-size: 14px;
       font-weight: bold;
-      color: #00d8ff; 
-      text-transform: uppercase;
+      color: #fff;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+      background: rgba(0,0,0,0.2);
+      padding: 4px 8px;
+      border-radius: 4px;
     }
 
-    /* MAIN PANEL CONTENT => 2 columns, buy button pinned bottom-right */
+    /* MAIN CONTENT => flex:1 => two columns + buy button pinned at bottom */
     .panel-content {
       position: relative;
-      flex: 1;
+      flex: 1; /* fill leftover vertical space */
       display: flex;
       flex-direction: row;
       padding: 10px 20px;
       gap: 20px;
-      overflow: hidden;
+      overflow: hidden; /* ensure content fits within panel */
     }
+
     /* LEFT COLUMN => champion card */
     .card-column {
       display: flex;
       align-items: center;
       justify-content: center;
-      flex: 0 0 40%;
+      flex: 0 0 40%; /* about 40% width */
       overflow: hidden;
     }
     .champion-card {
@@ -167,7 +171,6 @@
       max-height: 100%;
       object-fit: contain;
       border-radius: 8px;
-      background-color: #222;
     }
 
     /* RIGHT COLUMN => evolutions, stats, etc. */
@@ -190,19 +193,46 @@
       gap: 8px;
       margin-bottom: 10px;
     }
-    .evolutions-row div {
+    .evolution-item {
       background-color: #333;
       border-radius: 4px;
-      padding: 4px 8px;
-      font-size: 12px;
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .evolution-item.current {
+      background-color: #ffff00;
+      box-shadow: 0 0 15px rgba(255,255,0,0.3);
+      transform: scale(1.05);
+    }
+    .evolution-item.current::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 2px solid rgba(255,255,0,0.5);
+      border-radius: 4px;
+      pointer-events: none;
+    }
+    .evolution-item img {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+    }
+    .evolution-name {
+      display: none; /* Hide the name label */
     }
     .stats-line {
       font-size: 14px;
       color: #fff;
-      margin-bottom: 40px; /* space for buy button */
+      margin-bottom: 40px; /* leave space for buy button */
     }
 
-    /* BUY BUTTON pinned bottom-right */
+    /* BUY BUTTON pinned at bottom right inside the panel */
     .buy-button {
       position: absolute;
       bottom: 10px;
@@ -229,13 +259,14 @@
       background-color: #9570e6;
     }
 
-    /* DRAGGABLE COINS INSIDE .main-content */
+    /* DRAGGABLE COINS */
     .selector {
-      position: absolute; /* absolutely inside .main-content */
+      position: absolute;
       width: 50px;
       height: 50px;
       border-radius: 50%;
       cursor: grab;
+      z-index: 2000;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -252,8 +283,59 @@
     }
     .selector:active { cursor: grabbing; }
 
-    .orange { color: orange; top: 150px; left: 150px; }
-    .blue   { color: dodgerblue; top: 250px; left: 250px; }
+    .orange { color: #ffff00; top: 150px; left: 150px; } /* Bright yellow */
+    .blue   { color: #00a2ff; top: 250px; left: 250px; } /* Brighter blue */
+
+    /* STATS VISUALIZATION */
+    .stats-circles {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .stat-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      position: relative;
+    }
+    .stat-circle {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 16px;
+      color: white;
+      text-shadow: 
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000;
+      position: relative;
+      background: #333; /* Lighter background */
+    }
+    .stat-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      clip-path: none;  /* Will be set dynamically */
+      z-index: -1;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: #aaa;
+      font-weight: bold;
+    }
+    .stat-atk .stat-fill { background: #ff4444; } /* Brighter red */
+    .stat-hp .stat-fill { background: #44ff44; }  /* Brighter green */
+    .stat-mana .stat-fill { background: #4444ff; } /* Brighter blue */
   </style>
 </head>
 <body>
@@ -263,15 +345,11 @@
     <div class="logo">CoOMidex</div>
   </header>
 
-  <!-- SCROLLABLE MAIN CONTENT -->
-  <div class="main-content" id="mainContent">
+  <!-- SCROLLABLE GRID -->
+  <div class="main-content">
     <div class="grid-container" id="gridContainer">
-      <!-- 151 champions inserted by JS -->
+      <!-- We'll insert 151 champions here via JS -->
     </div>
-
-    <!-- DRAGGABLE COINS INSIDE main-content -->
-    <div id="selectorOrange" class="selector orange"></div>
-    <div id="selectorBlue"   class="selector blue"></div>
   </div>
 
   <!-- BOTTOM DASH (two adjacent panels) -->
@@ -283,13 +361,15 @@
         <div class="champion-rarity" id="orangeRarity">Rare</div>
       </div>
       <div class="panel-content">
+        <!-- LEFT COLUMN => champion card -->
         <div class="card-column">
           <img class="champion-card" id="orangeCardImg" src="" alt="" style="display:none;">
         </div>
+        <!-- RIGHT COLUMN => evolutions, stats, buy button -->
         <div class="info-column">
           <div class="evolutions-label">Evolutions</div>
           <div class="evolutions-row" id="orangeEvolutions"></div>
-          <div class="stats-line" id="orangeStats">2/15 WINS +5%, 0.002 BTC -2%</div>
+          <div class="stats-line" id="orangeStats">--</div>
           <button class="buy-button green" id="orangeBuyBtn" style="display:none;">Buy now</button>
         </div>
       </div>
@@ -302,104 +382,96 @@
         <div class="champion-rarity" id="blueRarity">Rare</div>
       </div>
       <div class="panel-content">
+        <!-- LEFT COLUMN => champion card -->
         <div class="card-column">
           <img class="champion-card" id="blueCardImg" src="" alt="" style="display:none;">
         </div>
+        <!-- RIGHT COLUMN => evolutions, stats, buy button -->
         <div class="info-column">
           <div class="evolutions-label">Evolutions</div>
           <div class="evolutions-row" id="blueEvolutions"></div>
-          <div class="stats-line" id="blueStats">2/15 WINS +5%, 0.002 BTC -2%</div>
+          <div class="stats-line" id="blueStats"></div>
           <button class="buy-button purple" id="blueBuyBtn" style="display:none;">Buy now</button>
         </div>
       </div>
     </div>
   </footer>
 
+  <!-- DRAGGABLE COINS -->
+  <div id="selectorOrange" class="selector orange"></div>
+  <div id="selectorBlue" class="selector blue"></div>
+
   <script>
     /*******************************************************
      * 1) CREATE THE GRID OF 151 CHAMPIONS
      *******************************************************/
     const gridContainer = document.getElementById('gridContainer');
+    let activeCoin = document.getElementById('selectorOrange');  // Start with orange
+
     for (let i = 1; i <= 151; i++) {
       const div = document.createElement('div');
       div.classList.add('grid-item');
       div.dataset.championNumber = i;
-      div.dataset.cardImg = 'card pics/' + i + '.png'; // big card image
+      // "card pics/1.png" for big card, "small pics/1.png" for the small thumb
+      div.dataset.cardImg = 'card pics/' + i + '.png';
 
       const img = document.createElement('img');
-      img.src = 'small pics/' + i + '.png';            // small thumb
+      img.src = 'small pics/' + i + '.png';
       img.alt = 'Champion ' + i;
 
       div.appendChild(img);
       gridContainer.appendChild(div);
 
-      // Clicking => place the next coin on that square
+      // Clicking => place the active coin on that square (snap)
       div.addEventListener('click', () => {
-        // If user hasn't used any coin yet, pick next automatically
-        const coinToUse = getNextCoin();
-        placeCoinOnSquare(coinToUse, div);
+        placeCoinOnSquare(activeCoin, div);
+        // Toggle active coin for next click
+        activeCoin = (activeCoin === document.getElementById('selectorOrange')) 
+          ? document.getElementById('selectorBlue')
+          : document.getElementById('selectorOrange');
       });
     }
 
     /*******************************************************
-     * 2) ALTERNATE DEFAULT COIN FOR CLICKS
+     * 2) DRAGGABLE COINS (no snap-on-drop unless click)
      *******************************************************/
-    // We'll track the last coin used so we can alternate
-    let lastCoinUsed = 'blue'; // so the first "next" coin is orange
-
-    function getNextCoin() {
-      // if last was 'blue', we switch to 'orange', else to 'blue'
-      if (lastCoinUsed === 'blue') {
-        lastCoinUsed = 'orange';
-        activeCoin = selectorOrange;
-      } else {
-        lastCoinUsed = 'blue';
-        activeCoin = selectorBlue;
-      }
-      return activeCoin;
-    }
-
-    /*******************************************************
-     * 3) DRAGGABLE COINS
-     *******************************************************/
-    let activeCoin = null;   // whichever coin is currently "active"
-    let draggingCoin = null; // coin being dragged
+    let draggingCoin = null;  // coin currently being dragged
     let offsetX = 0, offsetY = 0;
     let currentHighlightedItem = null;
     let selectedItemOrange = null;
-    let selectedItemBlue   = null;
+    let selectedItemBlue = null;
 
-    const mainContent   = document.getElementById('mainContent');
     const selectorOrange = document.getElementById('selectorOrange');
     const selectorBlue   = document.getElementById('selectorBlue');
 
-    // MOUSE DOWN on a coin => start dragging
-    mainContent.addEventListener('mousedown', e => {
+    // MOUSE DOWN => start dragging if coin is clicked
+    document.addEventListener('mousedown', e => {
       if (e.target === selectorOrange || e.target === selectorBlue) {
         draggingCoin = e.target;
-        activeCoin   = draggingCoin; // set it as the active coin
-        const rect   = draggingCoin.getBoundingClientRect();
+        activeCoin = draggingCoin; // now this coin is "active"
+        const rect = draggingCoin.getBoundingClientRect();
         offsetX = e.clientX - rect.left;
         offsetY = e.clientY - rect.top;
       }
     });
 
-    // MOUSE MOVE => if dragging, move coin & highlight champion
-    mainContent.addEventListener('mousemove', e => {
+    // MOUSE MOVE => if dragging, move coin + highlight champion
+    document.addEventListener('mousemove', e => {
       if (draggingCoin) {
-        moveCoin(draggingCoin, e.clientX, e.clientY);
+        draggingCoin.style.left = (e.clientX - offsetX) + 'px';
+        draggingCoin.style.top  = (e.clientY - offsetY) + 'px';
         updateHighlight(draggingCoin);
       }
     });
 
     // MOUSE UP => drop coin => no snap
-    mainContent.addEventListener('mouseup', e => {
+    document.addEventListener('mouseup', e => {
       if (draggingCoin) {
         // remove dashed highlight
         if (currentHighlightedItem) {
           currentHighlightedItem.classList.remove('highlight-orange', 'highlight-blue');
         }
-        // check final drop => champion is selected, coin remains
+        // check final drop => champion is selected, coin stays
         const rect = draggingCoin.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
@@ -410,23 +482,12 @@
         if (below && below.closest('.grid-item')) {
           const gridItem = below.closest('.grid-item');
           selectChampion(draggingCoin, gridItem);
-          // coin stays exactly where dropped
+          // No "placeCoinOnSquare" => coin stays where dropped
         }
         draggingCoin = null;
         currentHighlightedItem = null;
       }
     });
-
-    // Move coin inside .main-content coordinate space
-    function moveCoin(coin, clientX, clientY) {
-      // .main-content's bounding rect
-      const mcRect = mainContent.getBoundingClientRect();
-      const left   = clientX - mcRect.left - offsetX;
-      const top    = clientY - mcRect.top  - offsetY;
-
-      coin.style.left = left + 'px';
-      coin.style.top  = top  + 'px';
-    }
 
     // highlight champion under coin center
     function updateHighlight(coin) {
@@ -451,29 +512,21 @@
 
     // place coin in center => only on click
     function placeCoinOnSquare(coin, gridItem) {
-      // also set it as active coin
-      activeCoin = coin;
-
-      // position coin at the center of gridItem
       const gridRect = gridItem.getBoundingClientRect();
       const coinRect = coin.getBoundingClientRect();
-      const mcRect   = mainContent.getBoundingClientRect();
+      const centerX = gridRect.left + (gridRect.width / 2) - (coinRect.width / 2);
+      const centerY = gridRect.top + (gridRect.height / 2) - (coinRect.height / 2);
+      coin.style.left = centerX + 'px';
+      coin.style.top  = centerY + 'px';
 
-      // left/top relative to .main-content
-      const left = (gridRect.left - mcRect.left) + (gridRect.width / 2) - (coinRect.width / 2);
-      const top  = (gridRect.top  - mcRect.top ) + (gridRect.height / 2) - (coinRect.height / 2);
-
-      coin.style.left = left + 'px';
-      coin.style.top  = top  + 'px';
-
+      // Also select champion
       selectChampion(coin, gridItem);
     }
 
-    // select champion => update bottom dash
+    // mark champion as selected => bottom panel updates
     function selectChampion(coin, gridItem) {
       const champNum = gridItem.dataset.championNumber;
       const cardImg  = gridItem.dataset.cardImg;
-
       if (coin === selectorOrange) {
         if (selectedItemOrange && selectedItemOrange !== gridItem) {
           selectedItemOrange.classList.remove('selected-orange');
@@ -481,7 +534,6 @@
         selectedItemOrange = gridItem;
         gridItem.classList.add('selected-orange');
         updateChampionPanel('orange', champNum, cardImg);
-        lastCoinUsed = 'orange'; // keep track so next click picks 'blue'
       } else {
         if (selectedItemBlue && selectedItemBlue !== gridItem) {
           selectedItemBlue.classList.remove('selected-blue');
@@ -489,14 +541,41 @@
         selectedItemBlue = gridItem;
         gridItem.classList.add('selected-blue');
         updateChampionPanel('blue', champNum, cardImg);
-        lastCoinUsed = 'blue';
       }
     }
 
     /*******************************************************
-     * 4) UPDATE BOTTOM PANELS
+     * 3) UPDATE BOTTOM PANELS
      *******************************************************/
+    let championsData = [];  // Will store the loaded champion data
+
+    // Load champions data when page loads
+    fetch('./champions.json')
+      .then(response => response.json())
+      .then(data => {
+        championsData = data;
+        console.log('Data loaded, length:', data.length);
+        // Force refresh any displayed champions
+        if (selectedItemOrange) {
+          const champNum = selectedItemOrange.dataset.championNumber;
+          const cardImg = selectedItemOrange.dataset.cardImg;
+          updateChampionPanel('orange', champNum, cardImg);
+        }
+        if (selectedItemBlue) {
+          const champNum = selectedItemBlue.dataset.championNumber;
+          const cardImg = selectedItemBlue.dataset.cardImg;
+          updateChampionPanel('blue', champNum, cardImg);
+        }
+      })
+      .catch(error => {
+        console.error('Error loading champions data:', error);
+      });
+
     function updateChampionPanel(coin, champNum, cardImg) {
+      console.log('Updating panel for champion:', champNum);
+      console.log('Champions data loaded:', championsData.length > 0);
+
+      // Panel elements
       const titleEl  = document.getElementById(coin + 'Title');
       const rarityEl = document.getElementById(coin + 'Rarity');
       const imgEl    = document.getElementById(coin + 'CardImg');
@@ -504,34 +583,174 @@
       const statsEl  = document.getElementById(coin + 'Stats');
       const buyBtnEl = document.getElementById(coin + 'BuyBtn');
 
-      // Basic info
-      titleEl.textContent  = 'Champion ' + champNum;
-      rarityEl.textContent = 'Rare';
-      imgEl.src            = cardImg;
-      imgEl.style.display  = 'block';
+      // Get champion data (array is 0-based, but champion numbers are 1-based)
+      const champion = championsData[parseInt(champNum) - 1];
+      console.log('Found champion data:', champion);
 
-      // Evolutions example
+      if (!champion) {
+        console.log('No data found for champion:', champNum);
+        // Basic display if no data
+        titleEl.textContent = 'Champion ' + champNum;
+        rarityEl.textContent = 'Unknown | Edition: -- | Gen -- | Print: --%';
+        imgEl.src = cardImg;
+        imgEl.style.display = 'block';
+        
+        evoEl.innerHTML = '';
+        const baseNum = Math.floor((parseInt(champNum) - 1) / 3) * 3 + 1;
+        [baseNum, baseNum + 1, baseNum + 2].forEach(num => {
+          const div = document.createElement('div');
+          div.className = 'evolution-item';
+          
+          // Add small image (add 1 to match image numbers)
+          const img = document.createElement('img');
+          img.src = `small pics/${num + 1}.png`;  // Add +1 to match image numbers
+          img.alt = `Champion ${num}`;
+          div.appendChild(img);
+          
+          // Add name
+          const name = document.createElement('div');
+          name.className = 'evolution-name';
+          name.textContent = `Champion ${num}`;
+          div.appendChild(name);
+          
+          // Highlight current evolution
+          if (num === parseInt(champNum)) {
+            div.classList.add('current');
+          }
+          
+          evoEl.appendChild(div);
+        });
+        
+        statsEl.textContent = 'ATK: -- | HP: -- | MANA: -- | Element: -- | Ability: --';
+        return;
+      }
+
+      console.log('Displaying champion:', champion.name);
+
+      // Update with champion data
+      titleEl.textContent = champion.name + (champion.title ? ` - ${champion.title}` : '');
+      
+      // Show full rarity info
+      const rarityInfo = [
+        champion.rarity,
+        `Edition: ${champion.edition}`,
+        `Gen ${champion.generation}`,
+        champion.skin !== 'Classic' ? champion.skin : '',
+        champion.crafted ? `Crafted: ${champion.crafted}` : ''
+      ].filter(Boolean).join(' | ');
+      rarityEl.textContent = rarityInfo;
+
+      imgEl.src = cardImg;
+      imgEl.style.display = 'block';
+
+      // Split evolutions string and create evolution boxes
       evoEl.innerHTML = '';
-      const d1 = document.createElement('div');
-      d1.textContent = 'Champion ' + champNum;
-      const d2 = document.createElement('div');
-      d2.textContent = '???';
-      const d3 = document.createElement('div');
-      d3.textContent = '???';
-      evoEl.appendChild(d1);
-      evoEl.appendChild(d2);
-      evoEl.appendChild(d3);
+      const evolutions = champion.evolutions.split(', ');
+      
+      // First find all champion numbers for the evolution chain
+      const evoNumbers = [];
+      for (let i = 0; i < championsData.length; i++) {
+        if (evolutions.includes(championsData[i].name)) {
+          evoNumbers.push(i + 1); // +1 because array is 0-based
+        }
+      }
+      
+      // Create evolution boxes in the correct order
+      evolutions.forEach((evo, index) => {
+        const div = document.createElement('div');
+        div.className = 'evolution-item';
+        
+        // Add small image using the found champion number
+        const img = document.createElement('img');
+        img.src = `small pics/${evoNumbers[index]}.png`;
+        img.alt = evo;
+        div.appendChild(img);
+        
+        // Add name
+        const name = document.createElement('div');
+        name.className = 'evolution-name';
+        name.textContent = evo;
+        div.appendChild(name);
+        
+        // Highlight current evolution
+        if (champion.name === evo) {
+          div.classList.add('current');
+        }
+        
+        evoEl.appendChild(div);
+      });
 
-      // Stats
-      statsEl.textContent = '2/15 WINS +5%, 0.002 BTC -2%';
+      // Display all champion stats
+      const statsContainer = document.createElement('div');
+      statsContainer.className = 'stats-circles';
+      
+      // Create stat circles
+      const stats = [
+        { label: 'ATK', value: champion ? champion.attack : 0, maxValue: 10, class: 'stat-atk' },
+        { label: 'HP', value: champion ? champion.health : 0, maxValue: 10, class: 'stat-hp' },
+        { label: 'MANA', value: champion ? champion.manaCost : 0, maxValue: 10, class: 'stat-mana' }
+      ];
+      
+      stats.forEach(stat => {
+        const group = document.createElement('div');
+        group.className = 'stat-group';
+        
+        const circle = document.createElement('div');
+        circle.className = `stat-circle ${stat.class}`;
+        
+        // Add the fill element (pie chart)
+        const fill = document.createElement('div');
+        fill.className = 'stat-fill';
+        
+        // Calculate percentage and create pie chart clip path
+        const percentage = (stat.value / stat.maxValue);
+        const degrees = percentage * 360;
+        
+        // Convert degrees to radians for calculation
+        const rad = (degrees - 90) * Math.PI / 180;
+        const x = Math.cos(rad) * 50 + 50;
+        const y = Math.sin(rad) * 50 + 50;
+        
+        // Create clip path based on percentage
+        if (degrees <= 180) {
+          fill.style.clipPath = `path('M 50 50 L 50 0 A 50 50 0 0 1 ${x} ${y} Z')`;
+        } else {
+          fill.style.clipPath = `path('M 50 50 L 50 0 A 50 50 0 0 1 50 100 A 50 50 0 0 1 ${x} ${y} Z')`;
+        }
+        
+        // Add the value text
+        circle.textContent = stat.value || '--';
+        
+        circle.appendChild(fill);
+        
+        const label = document.createElement('div');
+        label.className = 'stat-label';
+        label.textContent = stat.label;
+        
+        group.appendChild(circle);
+        group.appendChild(label);
+        statsContainer.appendChild(group);
+      });
+      
+      // Clear and update stats display
+      statsEl.innerHTML = '';
+      statsEl.appendChild(statsContainer);
+      
+      // Add element and ability text below circles
+      const extraStats = document.createElement('div');
+      extraStats.style.marginTop = '10px';
+      extraStats.style.color = '#fff';
+      extraStats.innerHTML = champion ? 
+        `<span style="color: #aaa">Type:</span> ${champion.element} | <span style="color: #aaa">Ability:</span> ${champion.ability}` :
+        '<span style="color: #aaa">Type:</span> -- | <span style="color: #aaa">Ability:</span> --';
+      statsEl.appendChild(extraStats);
 
-      // Show buy button
+      // Show the buy button
       buyBtnEl.style.display = 'inline-block';
       buyBtnEl.onclick = () => {
-        alert(`Buying Champion ${champNum} for the ${coin} side!`);
+        alert(`Buying ${champion.name} (${champion.rarity} | ${champion.edition} Gen ${champion.generation}) for the ${coin} side!`);
       };
     }
   </script>
 </body>
 </html>
-

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>CoOMidex - Final Version</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- TOP BAR -->
+  <header>
+    <div class="logo">CoOMidex</div>
+  </header>
+  
+  <!-- SCROLLABLE MAIN CONTENT -->
+  <div class="main-content" id="mainContent">
+    <div class="grid-container" id="gridContainer">
+      <!-- 151 champions will be inserted by script.js -->
+    </div>
+  </div>
+  
+  <!-- DRAGGABLE COINS (positioned outside main-content) -->
+  <div id="selectorOrange" class="selector orange" data-initial-top="150" data-initial-left="150"></div>
+  <div id="selectorBlue" class="selector blue" data-initial-top="250" data-initial-left="250"></div>
+  
+  <!-- BOTTOM DASH: Champion Panels -->
+  <footer>
+    <!-- ORANGE PANEL -->
+    <div class="champion-panel" id="orangePanel">
+      <div class="panel-top-bar orange">
+        <div class="champion-title" id="orangeTitle">Champion ?</div>
+        <div class="champion-rarity" id="orangeRarity">Rare</div>
+      </div>
+      <div class="panel-body">
+        <div class="card-column">
+          <img class="champion-card" id="orangeCardImg" src="" alt="" style="display:none;">
+        </div>
+        <div class="info-column">
+          <div class="evolutions-label">Evolutions</div>
+          <div class="evolutions-row" id="orangeEvolutions">
+            <!-- Evolution images will be inserted by script.js -->
+          </div>
+          <div class="stats-line" id="orangeStats">
+            <!-- Stats will be updated from champion JSON data -->
+          </div>
+          <button class="buy-button green" id="orangeBuyBtn" style="display:none;">Buy now</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- BLUE PANEL (structure similar to orange panel) -->
+    <div class="champion-panel" id="bluePanel">
+      <div class="panel-top-bar blue">
+        <div class="champion-title" id="blueTitle">Champion ?</div>
+        <div class="champion-rarity" id="blueRarity">Rare</div>
+      </div>
+      <div class="panel-body">
+        <div class="card-column">
+          <img class="champion-card" id="blueCardImg" src="" alt="" style="display:none;">
+        </div>
+        <div class="info-column">
+          <div class="evolutions-label">Evolutions</div>
+          <div class="evolutions-row" id="blueEvolutions">
+            <!-- Evolution images will be inserted by script.js -->
+          </div>
+          <div class="stats-line" id="blueStats">
+            <!-- Stats will be updated from champion JSON data -->
+          </div>
+          <button class="buy-button purple" id="blueBuyBtn" style="display:none;">Buy now</button>
+        </div>
+      </div>
+    </div>
+  </footer>
+  
+  <script src="script.js"></script>
+</body>
+</html>
+
