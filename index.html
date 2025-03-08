@@ -129,8 +129,14 @@
       border-top-right-radius: 0px;
       flex-shrink: 0;
     }
-    .panel-top-bar.orange { background-color: #ff9c00; }
-    .panel-top-bar.blue   { background-color: #006aff; }
+    .panel-top-bar.orange { 
+      background-color: #ff9c00;
+      box-shadow: 0 0 1px rgba(255,156,0,0.3); /* Reduced glow by 95% */
+    }
+    .panel-top-bar.blue { 
+      background-color: #006aff;
+      box-shadow: 0 0 1px rgba(0,106,255,0.3); /* Reduced glow by 95% */
+    }
 
     .champion-title {
       font-size: 16px;
@@ -672,7 +678,7 @@
         
         // Add small image using the found champion number
         const img = document.createElement('img');
-        img.src = `small pics/${evoNumbers[index] || champNum}.png`;
+        img.src = `small pics/${evoNumbers[index] || parseInt(champNum)}.png`;  // Use current champion number as fallback
         img.alt = evo;
         div.appendChild(img);
         
