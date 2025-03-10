@@ -589,28 +589,24 @@
       if (cachedImages) {
         const imageCache = JSON.parse(cachedImages);
         let filename;
-        switch(type) {
-          case 'ability':
-            filename = `abilities/${num}.${format}`;
-            break;
-          case 'element':
-            filename = `elements/${num}.${format}`;
-            break;
-          default:
-            filename = `${num}.${format}`;
+        if (type === 'champion') {
+          filename = `${num}.${format}`;
+        } else if (type === 'element') {
+          filename = `elements/${num.toLowerCase()}.${format}`;
+        } else if (type === 'ability') {
+          filename = `abilities/${num}.${format}`;
         }
         if (imageCache[filename]) {
           return `data:image/${format};base64,${imageCache[filename]}`;
         }
       }
       // Fallback paths
-      switch(type) {
-        case 'ability':
-          return `abilities/${num}.${format}`;
-        case 'element':
-          return `elements/${num}.${format}`;
-        default:
-          return `small pics/${num}.${format}`;
+      if (type === 'champion') {
+        return `small pics/${num}.${format}`;
+      } else if (type === 'element') {
+        return `elements/${num.toLowerCase()}.${format}`;
+      } else if (type === 'ability') {
+        return `abilities/${num}.${format}`;
       }
     }
 
@@ -665,12 +661,12 @@
 
         // Create grid items for Core Set champions
         coreSetChampions.forEach(champion => {
-          const div = document.createElement('div');
-          div.classList.add('grid-item');
+      const div = document.createElement('div');
+      div.classList.add('grid-item');
           div.dataset.championNumber = champion.championNumber;
           div.style.display = 'none';  // Hide by default until image loads
-          
-          const img = document.createElement('img');
+
+      const img = document.createElement('img');
           img.alt = champion.name;
           
           // Try loading both formats
@@ -686,17 +682,17 @@
               console.log(`Champion ${champion.championNumber} (${champion.name}) has no available image`);
             });
 
-          div.appendChild(img);
-          gridContainer.appendChild(div);
+      div.appendChild(img);
+      gridContainer.appendChild(div);
 
-          // Clicking => place the active coin on that square (snap)
-          div.addEventListener('click', () => {
-            placeCoinOnSquare(activeCoin, div);
-            // Toggle active coin for next click
-            activeCoin = (activeCoin === document.getElementById('selectorOrange')) 
-              ? document.getElementById('selectorBlue')
-              : document.getElementById('selectorOrange');
-          });
+      // Clicking => place the active coin on that square (snap)
+      div.addEventListener('click', () => {
+        placeCoinOnSquare(activeCoin, div);
+        // Toggle active coin for next click
+        activeCoin = (activeCoin === document.getElementById('selectorOrange')) 
+          ? document.getElementById('selectorBlue')
+          : document.getElementById('selectorOrange');
+      });
         });
 
         // Force refresh any displayed champions
@@ -1095,13 +1091,14 @@
           elementSection.style.flex = '1';
           
           const elementImg = document.createElement('img');
-          // Try loading element image from cache
-          tryLoadImage(champion.element.toLowerCase(), 'element')
+          // Use the caching system for element images
+          tryLoadImage(champion.element, 'element')
             .then(format => {
-              elementImg.src = getImageFromCache(champion.element.toLowerCase(), format, 'element');
+              elementImg.src = getImageFromCache(champion.element, format, 'element');
             })
             .catch(() => {
-              elementImg.src = `elements/${champion.element.toLowerCase()}.png`;
+              console.log(`Element image ${champion.element} not found`);
+              elementImg.src = `elements/${champion.element.toLowerCase()}.png`; // Fallback
             });
           elementImg.alt = champion.element;
           elementImg.style.height = '40px';
@@ -1128,33 +1125,21 @@
           abilities.forEach(ability => {
             const abilityImg = document.createElement('img');
             const abilityName = ability
-              .replace(/\s*\(\d+\)\s*/g, '') // Remove (X) and any surrounding whitespace
-              .replace(/\s+/g, ''); // Remove spaces entirely to create camelCase
-            
-            console.log(`Loading ability image for: ${abilityName}`); // Debug log
-            
-            // Try loading ability image from cache
+              .replace(/\s*\(\d+\)\s*/g, '')
+              .replace(/\s+/g, '');
+            // Use the caching system for ability images
             tryLoadImage(abilityName, 'ability')
               .then(format => {
-                const src = getImageFromCache(abilityName, format, 'ability');
-                console.log(`Successfully loaded ability image: ${src}`); // Debug log
-                abilityImg.src = src;
+                abilityImg.src = getImageFromCache(abilityName, format, 'ability');
               })
-              .catch(error => {
-                console.log(`Failed to load ability image for ${abilityName}:`, error); // Debug log
-                // Fallback to direct path
-                abilityImg.src = `abilities/${abilityName}.png`;
+              .catch(() => {
+                console.log(`Ability image ${abilityName} not found`);
+                abilityImg.src = `abilities/${abilityName}.png`; // Fallback
               });
-            
             abilityImg.alt = ability;
             abilityImg.style.height = '40px';
             abilityImg.style.width = '40px';
             abilityImg.style.objectFit = 'contain';
-            
-            // Add error handler for the image
-            abilityImg.onerror = () => {
-              console.log(`Failed to load ability image: abilities/${abilityName}.png`); // Debug log
-            };
             
             abilitySection.appendChild(abilityImg);
           });
