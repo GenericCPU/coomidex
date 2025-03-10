@@ -143,20 +143,20 @@
     }
 
     .panel-top-bar.orange { 
-      background-color: #FF6600;  /* More vibrant orange */
-      box-shadow: 0 0 15px rgba(255, 102, 0, 0.7),
-                 0 0 30px rgba(255, 102, 0, 0.4),
-                 0 0 45px rgba(255, 102, 0, 0.2),
-                 0 0 60px rgba(255, 102, 0, 0.1),
-                 inset 0 0 15px rgba(255, 255, 255, 0.3);  /* Reduced glow intensity */
+      background-color: #ffff00;  /* Match selector yellow */
+      box-shadow: 0 0 15px rgba(255, 255, 0, 0.7),
+                 0 0 30px rgba(255, 255, 0, 0.4),
+                 0 0 45px rgba(255, 255, 0, 0.2),
+                 0 0 60px rgba(255, 255, 0, 0.1),
+                 inset 0 0 15px rgba(255, 255, 255, 0.3);
     }
     .panel-top-bar.blue { 
-      background-color: #0066CC;  /* Darker blue */
-      box-shadow: 0 0 15px rgba(0, 102, 204, 0.7),
-                 0 0 30px rgba(0, 102, 204, 0.4),
-                 0 0 45px rgba(0, 102, 204, 0.2),
-                 0 0 60px rgba(0, 102, 204, 0.1),
-                 inset 0 0 15px rgba(255, 255, 255, 0.3);  /* Reduced glow intensity */
+      background-color: #00ffff;  /* Match selector cyan */
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.7),
+                 0 0 30px rgba(0, 255, 255, 0.4),
+                 0 0 45px rgba(0, 255, 255, 0.2),
+                 0 0 60px rgba(0, 255, 255, 0.1),
+                 inset 0 0 15px rgba(255, 255, 255, 0.3);
     }
 
     /* Hide the title and rarity in top bar */
@@ -203,10 +203,42 @@
       width: 220px; /* Set fixed width */
     }
     .evolutions-label {
-      font-size: 14px;
-      color: #aaa;
+      font-size: 18px;  /* Increased from 14px */
+      color: #fff;  /* Changed from #aaa to white for better visibility */
       margin-top: 20px;
       margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .champion-number {
+      color: #888;
+      font-size: 16px;
+    }
+    .champion-rarity-tag {
+      font-size: 14px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    .rarity-common { 
+      background-color: #404040; /* Dark grey */
+      color: #fff;
+    }
+    .rarity-uncommon { background-color: #27AE60; }
+    .rarity-rare { 
+      background: linear-gradient(135deg, #C0C0C0, #E8E8E8, #C0C0C0); /* Silver gradient */
+      color: #000;
+    }
+    .rarity-epic { background-color: #8E44AD; }
+    .rarity-legendary { background-color: #F39C12; }
+    .rarity-diamond { 
+      background: linear-gradient(135deg, #B9F2FF, #E6FBFF, #B9F2FF); /* Diamond gradient */
+      color: #000;
+    }
+    .rarity-mythic { 
+      background: linear-gradient(135deg, #FFD700, #FFC800, #FFD700); /* Gold gradient */
+      color: #000;
     }
     .evolutions-row {
       display: flex;
@@ -425,7 +457,7 @@
         </div>
         <!-- RIGHT COLUMN => evolutions, stats, buy button -->
         <div class="info-column">
-          <div class="evolutions-label">Evolutions</div>
+          <div class="evolutions-label">Champions</div>
           <div class="evolutions-row" id="orangeEvolutions"></div>
           <div class="stats-line" id="orangeStats">--</div>
           <button class="buy-button green" id="orangeBuyBtn" style="display:none;">Buy now</button>
@@ -446,7 +478,7 @@
         </div>
         <!-- RIGHT COLUMN => evolutions, stats, buy button -->
         <div class="info-column">
-          <div class="evolutions-label">Evolutions</div>
+          <div class="evolutions-label">Champions</div>
           <div class="evolutions-row" id="blueEvolutions"></div>
           <div class="stats-line" id="blueStats"></div>
           <button class="buy-button purple" id="blueBuyBtn" style="display:none;">Buy now</button>
@@ -741,6 +773,60 @@
       imgEl.src = cardImg;
       imgEl.style.display = 'block';
 
+      // Update evolutions label with champion name, number and rarity
+      const evolutionsLabel = coin === 'orange' ? 
+        document.querySelector('#orangePanel .evolutions-label') : 
+        document.querySelector('#bluePanel .evolutions-label');
+      evolutionsLabel.innerHTML = '';
+      evolutionsLabel.style.display = 'flex';
+      evolutionsLabel.style.alignItems = 'center';
+      evolutionsLabel.style.width = '100%';
+      evolutionsLabel.style.position = 'relative';
+
+      // Add champion number (fixed to left)
+      const numberSpan = document.createElement('span');
+      numberSpan.className = 'champion-number';
+      numberSpan.textContent = `#${champNum.padStart(3, '0')}`;
+      numberSpan.style.marginRight = '15px';
+      numberSpan.style.flexShrink = '0'; // Prevent number from shrinking
+
+      // Create a container for the champion name (flexible middle)
+      const nameContainer = document.createElement('div');
+      nameContainer.style.flex = '1';
+      nameContainer.style.display = 'flex';
+      nameContainer.style.justifyContent = 'center';
+      nameContainer.style.alignItems = 'center';
+      nameContainer.style.minWidth = '0'; // Allow container to shrink below content size
+      nameContainer.style.overflow = 'hidden'; // Prevent overflow
+
+      // Add champion name with potential scaling
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = champion.name;
+      nameSpan.style.whiteSpace = 'nowrap'; // Keep on one line
+      nameSpan.style.fontSize = '18px'; // Start with default size
+      nameContainer.appendChild(nameSpan);
+
+      // Add rarity tag (fixed to right)
+      const raritySpan = document.createElement('span');
+      raritySpan.className = `champion-rarity-tag rarity-${champion.rarity.toLowerCase()}`;
+      raritySpan.textContent = champion.rarity;
+      raritySpan.style.marginLeft = '15px';
+      raritySpan.style.flexShrink = '0'; // Prevent rarity from shrinking
+
+      // Assemble the layout
+      evolutionsLabel.appendChild(numberSpan);
+      evolutionsLabel.appendChild(nameContainer);
+      evolutionsLabel.appendChild(raritySpan);
+
+      // Check if name needs scaling
+      const maxWidth = nameContainer.offsetWidth;
+      const nameWidth = nameSpan.offsetWidth;
+      if (nameWidth > maxWidth) {
+        const scale = maxWidth / nameWidth;
+        const newSize = Math.max(12, Math.floor(18 * scale)); // Don't go smaller than 12px
+        nameSpan.style.fontSize = `${newSize}px`;
+      }
+
       // Split evolutions string and create evolution boxes
       evoEl.innerHTML = '';
       let evolutions = champion.evolutions.split(', ');
@@ -854,11 +940,13 @@
       // Add element and ability text below circles
       const extraStats = document.createElement('div');
       extraStats.style.marginTop = '10px';
+      extraStats.style.marginBottom = '2px'; // Reduced margin to move buy button up
       extraStats.style.color = '#fff';
       extraStats.style.display = 'flex';
       extraStats.style.alignItems = 'center';
-      extraStats.style.justifyContent = 'center';  // Changed to center for single items
-      extraStats.style.width = '100%';  // Ensure full width
+      extraStats.style.justifyContent = 'center';
+      extraStats.style.width = '100%';
+      extraStats.style.position = 'relative';
 
       if (champion) {
         let hasIcons = 0;  // Counter for number of icons
@@ -869,6 +957,7 @@
           elementSection.style.display = 'flex';
           elementSection.style.alignItems = 'center';
           elementSection.style.justifyContent = 'center';
+          elementSection.style.flex = '1'; // Add flex 1
           
           const elementImg = document.createElement('img');
           elementImg.src = `elements/${champion.element.toLowerCase()}.png`;
@@ -888,6 +977,7 @@
           abilitySection.style.display = 'flex';
           abilitySection.style.alignItems = 'center';
           abilitySection.style.justifyContent = 'center';
+          abilitySection.style.flex = '1'; // Add flex 1
 
           const abilityImg = document.createElement('img');
           abilityImg.src = `abilities/${champion.ability.toLowerCase().replace(/\s+/g, '_')}.png`;
@@ -903,11 +993,9 @@
 
         // Adjust spacing based on number of icons
         if (hasIcons === 2) {
-          extraStats.style.justifyContent = 'space-around';
-          extraStats.style.gap = '0';
-        } else {
+          extraStats.style.justifyContent = 'space-evenly'; // Changed from space-around to space-evenly
+        } else if (hasIcons === 1) {
           extraStats.style.justifyContent = 'center';
-          extraStats.style.gap = '0';
         }
       } else {
         extraStats.innerHTML = '--';
@@ -918,7 +1006,7 @@
       buyBtnEl.className = '';  // Remove default classes
       buyBtnEl.style.display = 'flex';
       buyBtnEl.style.alignItems = 'center';
-      buyBtnEl.style.justifyContent = 'center';  // Center the button
+      buyBtnEl.style.justifyContent = 'center';
       buyBtnEl.style.gap = '0';
       buyBtnEl.style.cursor = 'pointer';
       buyBtnEl.style.transition = 'all 0.2s ease';
@@ -926,62 +1014,60 @@
       buyBtnEl.style.outline = 'none';
       buyBtnEl.style.boxShadow = 'none';
       buyBtnEl.style.padding = '0';
-      buyBtnEl.style.margin = '0 auto';  // Center horizontally
+      buyBtnEl.style.margin = '0'; // Remove vertical margin
       buyBtnEl.style.backgroundColor = 'transparent';
       buyBtnEl.style.appearance = 'none';
       buyBtnEl.style.WebkitAppearance = 'none';
       buyBtnEl.style.MozAppearance = 'none';
-      buyBtnEl.style.width = 'fit-content';  // Only as wide as content
+      buyBtnEl.style.width = '100%'; // Take full width to allow centering
 
       // Create container for pill shape
       const pillContainer = document.createElement('div');
       pillContainer.style.display = 'flex';
-      pillContainer.style.backgroundColor = '#000';  // Black background
-      pillContainer.style.borderRadius = '100px';  // Pill shape
+      pillContainer.style.backgroundColor = '#000';
+      pillContainer.style.borderRadius = '100px';
       pillContainer.style.overflow = 'hidden';
+      pillContainer.style.width = 'fit-content';
+      pillContainer.style.margin = '0 auto'; // Center horizontally
 
-      // Create price section (left side)
-      const priceSection = document.createElement('div');
-      priceSection.style.display = 'flex';
-      priceSection.style.alignItems = 'center';
-      priceSection.style.gap = '8px';
-      priceSection.style.padding = '8px 12px';
-      priceSection.style.backgroundColor = 'transparent';  // Changed to transparent
-      priceSection.style.border = 'none';
+      // Create HandCash logo section (left side)
+      const logoSection = document.createElement('div');
+      logoSection.style.padding = '8px 6px 8px 12px';  // Reduced right padding
+      logoSection.style.backgroundColor = 'transparent';
+      logoSection.style.display = 'flex';
+      logoSection.style.alignItems = 'center';
 
       // Create HandCash logo
       const handcashLogo = document.createElement('img');
-      handcashLogo.src = 'handcash.webp';  // Changed to webp
+      handcashLogo.src = 'handcash.webp';
       handcashLogo.alt = 'HandCash';
       handcashLogo.style.height = '20px';
       handcashLogo.style.width = '20px';
       handcashLogo.style.objectFit = 'contain';
+
+      // Create price section (right side)
+      const priceSection = document.createElement('div');
+      priceSection.style.display = 'flex';
+      priceSection.style.alignItems = 'center';
+      priceSection.style.padding = '8px 12px 8px 6px';  // Reduced left padding
+      priceSection.style.backgroundColor = 'transparent';
+      priceSection.style.border = 'none';
 
       // Create price text
       const priceText = document.createElement('span');
       priceText.style.color = '#fff';
       priceText.style.fontSize = '14px';
       priceText.style.fontWeight = 'bold';
-      priceText.textContent = `$${(champion.price || 0).toFixed(2)}`;
-
-      // Create buy now section (right side)
-      const buyNowSection = document.createElement('div');
-      buyNowSection.style.padding = '8px 12px';
-      buyNowSection.style.backgroundColor = '#56ff97';  // New bright green color
-      buyNowSection.style.color = '#000';
-      buyNowSection.style.fontSize = '14px';
-      buyNowSection.style.fontWeight = 'bold';
-      buyNowSection.style.border = 'none';
-      buyNowSection.textContent = 'BUY NOW';
+      priceText.textContent = `$${(champion.price || 4.99).toFixed(2)}`;  // Default to $4.99 if no price
 
       // Hover effects
       buyBtnEl.onmouseover = () => {
+        logoSection.style.backgroundColor = 'transparent';
         priceSection.style.backgroundColor = 'transparent';
-        buyNowSection.style.backgroundColor = '#47d680';  // Slightly darker on hover
       };
       buyBtnEl.onmouseout = () => {
+        logoSection.style.backgroundColor = 'transparent';
         priceSection.style.backgroundColor = 'transparent';
-        buyNowSection.style.backgroundColor = '#56ff97';  // Back to original color
       };
 
       buyBtnEl.onclick = () => {
@@ -989,11 +1075,11 @@
       };
 
       // Assemble the widget
-      priceSection.appendChild(handcashLogo);
+      logoSection.appendChild(handcashLogo);
       priceSection.appendChild(priceText);
 
+      pillContainer.appendChild(logoSection);
       pillContainer.appendChild(priceSection);
-      pillContainer.appendChild(buyNowSection);
 
       buyBtnEl.innerHTML = '';
       buyBtnEl.appendChild(pillContainer);
