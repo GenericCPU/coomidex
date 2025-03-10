@@ -23,7 +23,7 @@
       top: 0; left: 0;
       width: 100%;
       height: 60px;
-      background-color: #111;
+      background-color: #000;
       display: flex;
       align-items: center;
       padding: 0 20px;
@@ -42,7 +42,7 @@
       left: 0; right: 0;
       overflow-y: auto;
       padding: 20px;
-      background-color: #1b1b1b;
+      background-color: black;
     }
     .grid-container {
       display: grid;
@@ -66,8 +66,8 @@
       transform: scale(1.05);
     }
     .grid-item img {
-      max-width: 80px;
-      max-height: 80px;
+      max-width: 93px;
+      max-height: 93px;
       border-radius: 4px;
     }
 
@@ -99,14 +99,14 @@
       bottom: 0; left: 0;
       width: 100%;
       height: 320px;
-      background-color: #000; /* same as page */
+      background-color: #1b1b1b;
       z-index: 1000;
       display: flex;
       align-items: flex-start;
       justify-content: center; 
       gap: 0; /* no gap in the middle */
       padding: 0;
-    }
+    }x
 
     /* CHAMPION PANELS (each ~50% width) */
     .champion-panel {
@@ -123,34 +123,45 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 15px;
-      height: 30px; /* narrower bar */
+      padding: 0;
+      height: 8px; /* Slightly taller to make the shape more visible */
       border-top-left-radius: 0px;
       border-top-right-radius: 0px;
       flex-shrink: 0;
-    }
-    .panel-top-bar.orange { 
-      background-color: #ff9c00;
-      box-shadow: 0 0 1px rgba(255,156,0,0.3); /* Reduced glow by 95% */
-    }
-    .panel-top-bar.blue { 
-      background-color: #006aff;
-      box-shadow: 0 0 1px rgba(0,106,255,0.3); /* Reduced glow by 95% */
+      overflow: visible; /* Allow the shape to be visible */
+      margin: 0; /* Remove margin to allow bars to touch */
     }
 
-    .champion-title {
-      font-size: 16px;
-      font-weight: bold;
-      color: #fff;
+    /* Left panel trapezoid (angled on left side only) */
+    #orangePanel .panel-top-bar {
+      clip-path: polygon(0% 0%, 15% 100%, 100% 100%, 100% 0%);
     }
-    .champion-rarity {
-      font-size: 14px;
-      font-weight: bold;
-      color: #fff;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-      background: rgba(0,0,0,0.2);
-      padding: 4px 8px;
-      border-radius: 4px;
+
+    /* Right panel trapezoid (angled on right side only) */
+    #bluePanel .panel-top-bar {
+      clip-path: polygon(0% 0%, 0% 100%, 85% 100%, 100% 0%);
+    }
+
+    .panel-top-bar.orange { 
+      background-color: #FF6600;  /* More vibrant orange */
+      box-shadow: 0 0 15px rgba(255, 102, 0, 0.7),
+                 0 0 30px rgba(255, 102, 0, 0.4),
+                 0 0 45px rgba(255, 102, 0, 0.2),
+                 0 0 60px rgba(255, 102, 0, 0.1),
+                 inset 0 0 15px rgba(255, 255, 255, 0.3);  /* Reduced glow intensity */
+    }
+    .panel-top-bar.blue { 
+      background-color: #0066CC;  /* Darker blue */
+      box-shadow: 0 0 15px rgba(0, 102, 204, 0.7),
+                 0 0 30px rgba(0, 102, 204, 0.4),
+                 0 0 45px rgba(0, 102, 204, 0.2),
+                 0 0 60px rgba(0, 102, 204, 0.1),
+                 inset 0 0 15px rgba(255, 255, 255, 0.3);  /* Reduced glow intensity */
+    }
+
+    /* Hide the title and rarity in top bar */
+    .champion-title, .champion-rarity {
+      display: none;
     }
 
     /* MAIN CONTENT => flex:1 => two columns + buy button pinned at bottom */
@@ -160,17 +171,18 @@
       display: flex;
       flex-direction: row;
       padding: 10px 20px;
-      gap: 20px;
+      gap: 10px;  /* Reduce default gap from 20px to 10px */
       overflow: hidden; /* ensure content fits within panel */
     }
 
     /* LEFT COLUMN => champion card */
     .card-column {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      flex: 0 0 40%; /* about 40% width */
+      align-items: flex-start;
+      justify-content: flex-end;  /* Change to flex-end for right alignment */
+      flex: 0 0 50%; /* Increase from 40% to 50% */
       overflow: hidden;
+      padding-right: 0;  /* Remove any padding */
     }
     .champion-card {
       max-width: 100%;
@@ -186,33 +198,21 @@
       flex-direction: column;
       justify-content: flex-start;
       align-items: flex-start;
-      flex: 1;
+      flex: 0 0 auto; /* Change from flex: 1 to flex: 0 0 auto */
       overflow: hidden;
-    }
-    .champion-info {
-      width: 100%;
-      margin-bottom: 15px;
-    }
-    .champion-info .champion-title {
-      font-size: 16px;
-      font-weight: bold;
-      color: #fff;
-      margin-bottom: 5px;
-    }
-    .champion-info .champion-rarity {
-      font-size: 14px;
-      font-weight: bold;
-      color: #aaa;
+      width: 220px; /* Set fixed width */
     }
     .evolutions-label {
       font-size: 14px;
       color: #aaa;
-      margin-bottom: 5px;
+      margin-top: 20px;
+      margin-bottom: 10px;
     }
     .evolutions-row {
       display: flex;
       gap: 8px;
       margin-bottom: 10px;
+      width: auto;  /* Change from fixed width to auto */
     }
     .evolution-item {
       background-color: #333;
@@ -240,8 +240,8 @@
       pointer-events: none;
     }
     .evolution-item img {
-      width: 40px;
-      height: 40px;
+      width: 53px;
+      height: 53px;
       object-fit: contain;
     }
     .evolution-name {
@@ -250,20 +250,22 @@
     .stats-line {
       font-size: 14px;
       color: #fff;
-      margin-bottom: 40px; /* leave space for buy button */
+      margin-bottom: 10px;
     }
 
     /* BUY BUTTON pinned at bottom right inside the panel */
     .buy-button {
-      position: absolute;
-      bottom: 10px;
-      right: 10px;
+      bottom: 0px;
+      left: 0px;
       font-size: 14px;
       font-weight: bold;
-      padding: 8px 16px;
+      padding: 6px 12px;  /* Reduce padding */
       border-radius: 6px;
       border: none;
       cursor: pointer;
+      white-space: nowrap;  /* Keep text on one line */
+      width: fit-content;  /* Make button width fit content */
+      min-width: min-content;  /* Ensure minimum width matches content */
     }
     .buy-button.green {
       background-color: #83ff71;
@@ -321,8 +323,10 @@
     .stats-circles {
       display: flex;
       gap: 20px;
-      align-items: center;
-      margin-bottom: 10px;
+      align-items: flex-start;
+      justify-content: flex-end;  /* Change to flex-end for right alignment */
+      margin-bottom: 1px;
+      width: 100%;
     }
     .stat-group {
       display: flex;
@@ -334,10 +338,13 @@
     .stat-circle {
       width: 50px;
       height: 50px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      position: relative;
+    }
+    .stat-value {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       font-weight: bold;
       font-size: 16px;
       color: white;
@@ -346,27 +353,47 @@
         1px -1px 0 #000,
         -1px 1px 0 #000,
         1px 1px 0 #000;
-      position: relative;
-      background: #333; /* Lighter background */
-    }
-    .stat-fill {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      clip-path: none;  /* Will be set dynamically */
-      z-index: -1;
+      z-index: 2;
     }
     .stat-label {
       font-size: 12px;
       color: #aaa;
       font-weight: bold;
     }
-    .stat-atk .stat-fill { background: #ff4444; } /* Brighter red */
-    .stat-hp .stat-fill { background: #44ff44; }  /* Brighter green */
-    .stat-mana .stat-fill { background: #4444ff; } /* Brighter blue */
+    .stat-atk circle.stat-fill { stroke: #ff4444; } /* Brighter red */
+    .stat-hp circle.stat-fill { stroke: #44ff44; }  /* Brighter green */
+    .stat-mana circle.stat-fill { stroke: #4444ff; } /* Brighter blue */
+
+    /* Info badges */
+    .info-badge {
+      display: inline-block;
+      background: #333;
+      padding: 1px 12px;
+      border-radius: 6px;
+      margin-right: 3px;
+      margin-bottom: 0px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    /* Add specific styling for orange panel */
+    #orangePanel .panel-content {
+      gap: 0;  /* Remove gap between columns in orange panel */
+    }
+    #orangePanel .info-column {
+      align-items: flex-start;  /* Left align content in orange panel */
+      padding-left: 10px;  /* Add left padding */
+    }
+    #orangePanel .evolutions-row {
+      justify-content: flex-start;  /* Left align evolutions in orange panel */
+      width: auto;  /* Change from 100% to auto */
+    }
+    #orangePanel .extraStats {
+      text-align: left;  /* Left align the element/ability text */
+      width: 100%;
+    }
   </style>
 </head>
 <body>
@@ -388,6 +415,8 @@
     <!-- ORANGE PANEL -->
     <div class="champion-panel" id="orangePanel">
       <div class="panel-top-bar orange">
+        <div class="champion-title" id="orangeTitle">Champion ?</div>
+        <div class="champion-rarity" id="orangeRarity">Rare</div>
       </div>
       <div class="panel-content">
         <!-- LEFT COLUMN => champion card -->
@@ -396,10 +425,6 @@
         </div>
         <!-- RIGHT COLUMN => evolutions, stats, buy button -->
         <div class="info-column">
-          <div class="champion-info">
-            <div class="champion-title" id="orangeTitle">Champion ?</div>
-            <div class="champion-rarity" id="orangeRarity">--</div>
-          </div>
           <div class="evolutions-label">Evolutions</div>
           <div class="evolutions-row" id="orangeEvolutions"></div>
           <div class="stats-line" id="orangeStats">--</div>
@@ -411,6 +436,8 @@
     <!-- BLUE PANEL -->
     <div class="champion-panel" id="bluePanel">
       <div class="panel-top-bar blue">
+        <div class="champion-title" id="blueTitle">Champion ?</div>
+        <div class="champion-rarity" id="blueRarity">Rare</div>
       </div>
       <div class="panel-content">
         <!-- LEFT COLUMN => champion card -->
@@ -419,10 +446,6 @@
         </div>
         <!-- RIGHT COLUMN => evolutions, stats, buy button -->
         <div class="info-column">
-          <div class="champion-info">
-            <div class="champion-title" id="blueTitle">Champion ?</div>
-            <div class="champion-rarity" id="blueRarity">--</div>
-          </div>
           <div class="evolutions-label">Evolutions</div>
           <div class="evolutions-row" id="blueEvolutions"></div>
           <div class="stats-line" id="blueStats"></div>
@@ -626,7 +649,25 @@
         console.log('No data found for champion:', champNum);
         // Basic display if no data
         titleEl.textContent = 'Champion ' + champNum;
-        rarityEl.textContent = 'Unknown | Edition: -- | Gen -- | Print: --%';
+        
+        // Create three distinct badges for unknown champion
+        const rarity = document.createElement('span');
+        rarity.className = 'info-badge';
+        rarity.textContent = 'Unknown';
+
+        const edition = document.createElement('span');
+        edition.className = 'info-badge';
+        edition.textContent = 'Edition: --';
+
+        const gen = document.createElement('span');
+        gen.className = 'info-badge';
+        gen.textContent = 'Gen --';
+
+        rarityEl.innerHTML = '';
+        rarityEl.appendChild(rarity);
+        rarityEl.appendChild(edition);
+        rarityEl.appendChild(gen);
+
         imgEl.src = cardImg;
         imgEl.style.display = 'block';
         
@@ -665,15 +706,37 @@
       // Update with champion data
       titleEl.textContent = champion.name + (champion.title ? ` - ${champion.title}` : '');
       
-      // Show full rarity info
-      const rarityInfo = [
-        champion.rarity,
-        `Edition: ${champion.edition}`,
-        `Gen ${champion.generation}`,
-        champion.skin !== 'Classic' ? champion.skin : '',
-        champion.crafted ? `Crafted: ${champion.crafted}` : ''
-      ].filter(Boolean).join(' | ');
-      rarityEl.textContent = rarityInfo;
+      // Show rarity info in separate badges
+      const rarity = document.createElement('span');
+      rarity.className = 'info-badge';
+      rarity.textContent = champion.rarity;
+
+      const edition = document.createElement('span');
+      edition.className = 'info-badge';
+      edition.textContent = `${champion.edition} Edition`;
+
+      const gen = document.createElement('span');
+      gen.className = 'info-badge';
+      gen.textContent = `Gen ${champion.generation}`;
+
+      rarityEl.innerHTML = '';
+      rarityEl.appendChild(rarity);
+      rarityEl.appendChild(edition);
+      rarityEl.appendChild(gen);
+
+      if (champion.skin !== 'Classic') {
+        const skin = document.createElement('span');
+        skin.className = 'info-badge';
+        skin.textContent = champion.skin;
+        rarityEl.appendChild(skin);
+      }
+
+      if (champion.crafted) {
+        const crafted = document.createElement('span');
+        crafted.className = 'info-badge';
+        crafted.textContent = `Crafted: ${champion.crafted}`;
+        rarityEl.appendChild(crafted);
+      }
 
       imgEl.src = cardImg;
       imgEl.style.display = 'block';
@@ -689,6 +752,12 @@
           evoNumbers.push(i + 1); // +1 because array is 0-based
         }
       }
+
+      // Create container for evolutions with centered alignment if less than 3
+      const evoContainer = document.createElement('div');
+      evoContainer.style.display = 'flex';
+      evoContainer.style.gap = '8px';
+      evoContainer.style.justifyContent = evolutions.length < 3 ? 'center' : 'flex-start';
       
       // Create evolution boxes in the correct order
       evolutions.forEach((evo, index) => {
@@ -697,7 +766,7 @@
         
         // Add small image using the found champion number
         const img = document.createElement('img');
-        img.src = `small pics/${evoNumbers[index] || parseInt(champNum)}.png`;  // Use current champion number as fallback
+        img.src = `small pics/${evoNumbers[index] || parseInt(champNum)}.png`;
         img.alt = evo;
         div.appendChild(img);
         
@@ -712,8 +781,10 @@
           div.classList.add('current');
         }
         
-        evoEl.appendChild(div);
+        evoContainer.appendChild(div);
       });
+
+      evoEl.appendChild(evoContainer);
 
       // Display all champion stats
       const statsContainer = document.createElement('div');
@@ -721,9 +792,9 @@
       
       // Create stat circles
       const stats = [
-        { label: 'ATK', value: champion ? champion.attack : 0, maxValue: 10, class: 'stat-atk' },
-        { label: 'HP', value: champion ? champion.health : 0, maxValue: 10, class: 'stat-hp' },
-        { label: 'MANA', value: champion ? champion.manaCost : 0, maxValue: 10, class: 'stat-mana' }
+        { label: 'ATK', value: champion.attack || 0, maxValue: 10, class: 'stat-atk' },
+        { label: 'HP', value: champion.health || 0, maxValue: 10, class: 'stat-hp' },
+        { label: 'MANA', value: champion.manaCost || 0, maxValue: 10, class: 'stat-mana' }
       ];
       
       stats.forEach(stat => {
@@ -733,37 +804,46 @@
         const circle = document.createElement('div');
         circle.className = `stat-circle ${stat.class}`;
         
-        // Add the fill element (pie chart)
-        const fill = document.createElement('div');
-        fill.className = 'stat-fill';
+        // Create SVG for pie chart
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('width', '50');
+        svg.setAttribute('height', '50');
+        svg.setAttribute('viewBox', '0 0 50 50');
         
-        // Calculate percentage and create pie chart clip path
+        // Background circle
+        const bgCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        bgCircle.setAttribute('cx', '25');
+        bgCircle.setAttribute('cy', '25');
+        bgCircle.setAttribute('r', '22');
+        bgCircle.setAttribute('fill', '#333');
+        bgCircle.setAttribute('stroke-width', '3');
+        
+        // Foreground circle (pie slice)
+        const fillCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        fillCircle.setAttribute('cx', '25');
+        fillCircle.setAttribute('cy', '25');
+        fillCircle.setAttribute('r', '22');
+        fillCircle.setAttribute('fill', 'none');
+        fillCircle.setAttribute('stroke-width', '3');
+        fillCircle.classList.add('stat-fill');
+        
+        // Calculate percentage and stroke-dasharray
         const percentage = (stat.value / stat.maxValue);
-        const degrees = percentage * 360;
+        const circumference = 2 * Math.PI * 22;
+        fillCircle.setAttribute('stroke-dasharray', `${circumference * percentage} ${circumference}`);
+        fillCircle.setAttribute('transform', 'rotate(-90 25 25)');
         
-        // Convert degrees to radians for calculation
-        const rad = (degrees - 90) * Math.PI / 180;
-        const x = Math.cos(rad) * 50 + 50;
-        const y = Math.sin(rad) * 50 + 50;
-        
-        // Create clip path based on percentage
-        if (degrees <= 180) {
-          fill.style.clipPath = `path('M 50 50 L 50 0 A 50 50 0 0 1 ${x} ${y} Z')`;
-        } else {
-          fill.style.clipPath = `path('M 50 50 L 50 0 A 50 50 0 0 1 50 100 A 50 50 0 0 1 ${x} ${y} Z')`;
-        }
+        svg.appendChild(bgCircle);
+        svg.appendChild(fillCircle);
+        circle.appendChild(svg);
         
         // Add the value text
-        circle.textContent = stat.value || '--';
-        
-        circle.appendChild(fill);
-        
-        const label = document.createElement('div');
-        label.className = 'stat-label';
-        label.textContent = stat.label;
+        const value = document.createElement('div');
+        value.className = 'stat-value';
+        value.textContent = stat.value;
+        circle.appendChild(value);
         
         group.appendChild(circle);
-        group.appendChild(label);
         statsContainer.appendChild(group);
       });
       
@@ -775,16 +855,148 @@
       const extraStats = document.createElement('div');
       extraStats.style.marginTop = '10px';
       extraStats.style.color = '#fff';
-      extraStats.innerHTML = champion ? 
-        `<span style="color: #aaa">Type:</span> ${champion.element} | <span style="color: #aaa">Ability:</span> ${champion.ability}` :
-        '<span style="color: #aaa">Type:</span> -- | <span style="color: #aaa">Ability:</span> --';
+      extraStats.style.display = 'flex';
+      extraStats.style.alignItems = 'center';
+      extraStats.style.justifyContent = 'center';  // Changed to center for single items
+      extraStats.style.width = '100%';  // Ensure full width
+
+      if (champion) {
+        let hasIcons = 0;  // Counter for number of icons
+
+        // Element section
+        if (champion.element && champion.element !== "----") {
+          const elementSection = document.createElement('div');
+          elementSection.style.display = 'flex';
+          elementSection.style.alignItems = 'center';
+          elementSection.style.justifyContent = 'center';
+          
+          const elementImg = document.createElement('img');
+          elementImg.src = `elements/${champion.element.toLowerCase()}.png`;
+          elementImg.alt = champion.element;
+          elementImg.style.height = '40px';
+          elementImg.style.width = '40px';
+          elementImg.style.objectFit = 'contain';
+          
+          elementSection.appendChild(elementImg);
+          extraStats.appendChild(elementSection);
+          hasIcons++;
+        }
+
+        // Ability section
+        if (champion.ability && champion.ability !== "----") {
+          const abilitySection = document.createElement('div');
+          abilitySection.style.display = 'flex';
+          abilitySection.style.alignItems = 'center';
+          abilitySection.style.justifyContent = 'center';
+
+          const abilityImg = document.createElement('img');
+          abilityImg.src = `abilities/${champion.ability.toLowerCase().replace(/\s+/g, '_')}.png`;
+          abilityImg.alt = champion.ability;
+          abilityImg.style.height = '40px';
+          abilityImg.style.width = '40px';
+          abilityImg.style.objectFit = 'contain';
+          
+          abilitySection.appendChild(abilityImg);
+          extraStats.appendChild(abilitySection);
+          hasIcons++;
+        }
+
+        // Adjust spacing based on number of icons
+        if (hasIcons === 2) {
+          extraStats.style.justifyContent = 'space-around';
+          extraStats.style.gap = '0';
+        } else {
+          extraStats.style.justifyContent = 'center';
+          extraStats.style.gap = '0';
+        }
+      } else {
+        extraStats.innerHTML = '--';
+      }
       statsEl.appendChild(extraStats);
 
       // Show the buy button
-      buyBtnEl.style.display = 'inline-block';
-      buyBtnEl.onclick = () => {
-        alert(`Buying ${champion.name} (${champion.rarity} | ${champion.edition} Gen ${champion.generation}) for the ${coin} side!`);
+      buyBtnEl.className = '';  // Remove default classes
+      buyBtnEl.style.display = 'flex';
+      buyBtnEl.style.alignItems = 'center';
+      buyBtnEl.style.justifyContent = 'center';  // Center the button
+      buyBtnEl.style.gap = '0';
+      buyBtnEl.style.cursor = 'pointer';
+      buyBtnEl.style.transition = 'all 0.2s ease';
+      buyBtnEl.style.border = 'none';
+      buyBtnEl.style.outline = 'none';
+      buyBtnEl.style.boxShadow = 'none';
+      buyBtnEl.style.padding = '0';
+      buyBtnEl.style.margin = '0 auto';  // Center horizontally
+      buyBtnEl.style.backgroundColor = 'transparent';
+      buyBtnEl.style.appearance = 'none';
+      buyBtnEl.style.WebkitAppearance = 'none';
+      buyBtnEl.style.MozAppearance = 'none';
+      buyBtnEl.style.width = 'fit-content';  // Only as wide as content
+
+      // Create container for pill shape
+      const pillContainer = document.createElement('div');
+      pillContainer.style.display = 'flex';
+      pillContainer.style.backgroundColor = '#000';  // Black background
+      pillContainer.style.borderRadius = '100px';  // Pill shape
+      pillContainer.style.overflow = 'hidden';
+
+      // Create price section (left side)
+      const priceSection = document.createElement('div');
+      priceSection.style.display = 'flex';
+      priceSection.style.alignItems = 'center';
+      priceSection.style.gap = '8px';
+      priceSection.style.padding = '8px 12px';
+      priceSection.style.backgroundColor = 'transparent';  // Changed to transparent
+      priceSection.style.border = 'none';
+
+      // Create HandCash logo
+      const handcashLogo = document.createElement('img');
+      handcashLogo.src = 'handcash.webp';  // Changed to webp
+      handcashLogo.alt = 'HandCash';
+      handcashLogo.style.height = '20px';
+      handcashLogo.style.width = '20px';
+      handcashLogo.style.objectFit = 'contain';
+
+      // Create price text
+      const priceText = document.createElement('span');
+      priceText.style.color = '#fff';
+      priceText.style.fontSize = '14px';
+      priceText.style.fontWeight = 'bold';
+      priceText.textContent = `$${(champion.price || 0).toFixed(2)}`;
+
+      // Create buy now section (right side)
+      const buyNowSection = document.createElement('div');
+      buyNowSection.style.padding = '8px 12px';
+      buyNowSection.style.backgroundColor = '#56ff97';  // New bright green color
+      buyNowSection.style.color = '#000';
+      buyNowSection.style.fontSize = '14px';
+      buyNowSection.style.fontWeight = 'bold';
+      buyNowSection.style.border = 'none';
+      buyNowSection.textContent = 'BUY NOW';
+
+      // Hover effects
+      buyBtnEl.onmouseover = () => {
+        priceSection.style.backgroundColor = 'transparent';
+        buyNowSection.style.backgroundColor = '#47d680';  // Slightly darker on hover
       };
+      buyBtnEl.onmouseout = () => {
+        priceSection.style.backgroundColor = 'transparent';
+        buyNowSection.style.backgroundColor = '#56ff97';  // Back to original color
+      };
+
+      buyBtnEl.onclick = () => {
+        window.open(`https://handcash.io/pay/${champion.handcashHandle || 'unknown'}`, '_blank');
+      };
+
+      // Assemble the widget
+      priceSection.appendChild(handcashLogo);
+      priceSection.appendChild(priceText);
+
+      pillContainer.appendChild(priceSection);
+      pillContainer.appendChild(buyNowSection);
+
+      buyBtnEl.innerHTML = '';
+      buyBtnEl.appendChild(pillContainer);
     }
   </script>
 </body>
