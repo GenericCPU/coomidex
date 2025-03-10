@@ -592,7 +592,7 @@
         if (type === 'champion') {
           filename = `${num}.${format}`;
         } else if (type === 'element') {
-          filename = `ELEMENTS/${num.toLowerCase()}.${format}`;
+          filename = `ELEMENTS/${num.charAt(0).toUpperCase() + num.slice(1).toLowerCase()}.${format}`;
         } else if (type === 'ability') {
           filename = `ABILITIES/${num}.${format}`;
         }
@@ -604,7 +604,7 @@
       if (type === 'champion') {
         return `small pics/${num}.${format}`;
       } else if (type === 'element') {
-        return `ELEMENTS/${num.toLowerCase()}.${format}`;
+        return `ELEMENTS/${num.charAt(0).toUpperCase() + num.slice(1).toLowerCase()}.${format}`;
       } else if (type === 'ability') {
         return `https://coomidex.app/ABILITIES/${num}.${format}`;
       }
@@ -1098,7 +1098,7 @@
             })
             .catch(() => {
               console.log(`Element image ${champion.element} not found`);
-              elementImg.src = `ELEMENTS/${champion.element.toLowerCase()}.png`; // Fallback to direct path
+              elementImg.src = `ELEMENTS/${champion.element.charAt(0).toUpperCase() + champion.element.slice(1).toLowerCase()}.png`; // Fallback to direct path
             });
           elementImg.alt = champion.element;
           elementImg.style.height = '40px';
