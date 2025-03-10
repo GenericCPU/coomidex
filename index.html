@@ -584,50 +584,68 @@
     }
 
     // Function to get image from cache or load normally
-    function getImageFromCache(num, format) {
+    function getImageFromCache(num, format, type = 'champion') {
       const cachedImages = localStorage.getItem('championImages');
       if (cachedImages) {
         const imageCache = JSON.parse(cachedImages);
-        const filename = `${num}.${format}`;
+        let filename;
+        switch(type) {
+          case 'ability':
+            filename = `abilities/${num}.${format}`;
+            break;
+          case 'element':
+            filename = `elements/${num}.${format}`;
+            break;
+          default:
+            filename = `${num}.${format}`;
+        }
         if (imageCache[filename]) {
           return `data:image/${format};base64,${imageCache[filename]}`;
         }
       }
-      return `small pics/${num}.${format}`;
+      // Fallback paths
+      switch(type) {
+        case 'ability':
+          return `abilities/${num}.${format}`;
+        case 'element':
+          return `elements/${num}.${format}`;
+        default:
+          return `small pics/${num}.${format}`;
+      }
     }
 
     // Modified tryLoadImage function to use cache
-    function tryLoadImage(num) {
+    function tryLoadImage(num, type = 'champion') {
       return new Promise((resolve, reject) => {
         // Try png first (since that's what most images are)
         const pngImg = new Image();
         pngImg.onload = () => {
-          console.log(`Loaded PNG for champion ${num}`);
+          console.log(`Loaded PNG for ${type} ${num}`);
           resolve('png');
         };
         pngImg.onerror = () => {
           // If png fails, try webp
           const webpImg = new Image();
           webpImg.onload = () => {
-            console.log(`Loaded WEBP for champion ${num}`);
+            console.log(`Loaded WEBP for ${type} ${num}`);
             resolve('webp');
           };
           webpImg.onerror = () => {
             // If webp fails, try jpg as last resort
             const jpgImg = new Image();
             jpgImg.onload = () => {
-              console.log(`Loaded JPG for champion ${num}`);
+              console.log(`Loaded JPG for ${type} ${num}`);
               resolve('jpg');
             };
             jpgImg.onerror = () => {
-              console.log(`No image found for champion ${num}`);
+              console.log(`No image found for ${type} ${num}`);
               reject('no image found');
             };
-            jpgImg.src = getImageFromCache(num, 'jpg');
+            jpgImg.src = getImageFromCache(num, 'jpg', type);
           };
-          webpImg.src = getImageFromCache(num, 'webp');
+          webpImg.src = getImageFromCache(num, 'webp', type);
         };
-        pngImg.src = getImageFromCache(num, 'png');
+        pngImg.src = getImageFromCache(num, 'png', type);
       });
     }
 
@@ -1074,10 +1092,17 @@
           elementSection.style.display = 'flex';
           elementSection.style.alignItems = 'center';
           elementSection.style.justifyContent = 'center';
-          elementSection.style.flex = '1'; // Add flex 1
+          elementSection.style.flex = '1';
           
           const elementImg = document.createElement('img');
-          elementImg.src = `elements/${champion.element.toLowerCase()}.png`;
+          // Try loading element image from cache
+          tryLoadImage(champion.element.toLowerCase(), 'element')
+            .then(format => {
+              elementImg.src = getImageFromCache(champion.element.toLowerCase(), format, 'element');
+            })
+            .catch(() => {
+              elementImg.src = `elements/${champion.element.toLowerCase()}.png`;
+            });
           elementImg.alt = champion.element;
           elementImg.style.height = '40px';
           elementImg.style.width = '40px';
@@ -1094,8 +1119,8 @@
           abilitySection.style.display = 'flex';
           abilitySection.style.alignItems = 'center';
           abilitySection.style.justifyContent = 'center';
-          abilitySection.style.flex = '1'; // Add flex 1
-          abilitySection.style.gap = '4px'; // Add gap between dual abilities
+          abilitySection.style.flex = '1';
+          abilitySection.style.gap = '4px';
 
           // Split abilities if there's a |
           const abilities = champion.ability.split('|').map(a => a.trim());
@@ -1103,9 +1128,16 @@
           abilities.forEach(ability => {
             const abilityImg = document.createElement('img');
             const abilityName = ability
-              .replace(/\s*\(\d+\)\s*/g, '') // Remove (X) and any surrounding whitespace where X is any number
-              .replace(/\s+/g, ''); // Remove spaces entirely to create camelCase
-            abilityImg.src = `abilities/${abilityName}.png`;
+              .replace(/\s*\(\d+\)\s*/g, '')
+              .replace(/\s+/g, '');
+            // Try loading ability image from cache
+            tryLoadImage(abilityName, 'ability')
+              .then(format => {
+                abilityImg.src = getImageFromCache(abilityName, format, 'ability');
+              })
+              .catch(() => {
+                abilityImg.src = `abilities/${abilityName}.png`;
+              });
             abilityImg.alt = ability;
             abilityImg.style.height = '40px';
             abilityImg.style.width = '40px';
