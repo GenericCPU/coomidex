@@ -1128,20 +1128,33 @@
           abilities.forEach(ability => {
             const abilityImg = document.createElement('img');
             const abilityName = ability
-              .replace(/\s*\(\d+\)\s*/g, '')
-              .replace(/\s+/g, '');
+              .replace(/\s*\(\d+\)\s*/g, '') // Remove (X) and any surrounding whitespace
+              .replace(/\s+/g, ''); // Remove spaces entirely to create camelCase
+            
+            console.log(`Loading ability image for: ${abilityName}`); // Debug log
+            
             // Try loading ability image from cache
             tryLoadImage(abilityName, 'ability')
               .then(format => {
-                abilityImg.src = getImageFromCache(abilityName, format, 'ability');
+                const src = getImageFromCache(abilityName, format, 'ability');
+                console.log(`Successfully loaded ability image: ${src}`); // Debug log
+                abilityImg.src = src;
               })
-              .catch(() => {
+              .catch(error => {
+                console.log(`Failed to load ability image for ${abilityName}:`, error); // Debug log
+                // Fallback to direct path
                 abilityImg.src = `abilities/${abilityName}.png`;
               });
+            
             abilityImg.alt = ability;
             abilityImg.style.height = '40px';
             abilityImg.style.width = '40px';
             abilityImg.style.objectFit = 'contain';
+            
+            // Add error handler for the image
+            abilityImg.onerror = () => {
+              console.log(`Failed to load ability image: abilities/${abilityName}.png`); // Debug log
+            };
             
             abilitySection.appendChild(abilityImg);
           });
