@@ -592,9 +592,9 @@
         if (type === 'champion') {
           filename = `${num}.${format}`;
         } else if (type === 'element') {
-          filename = `elements/${num.toLowerCase()}.${format}`;
+          filename = `ELEMENTS/${num.toLowerCase()}.${format}`;
         } else if (type === 'ability') {
-          filename = `abilities/${num}.${format}`;
+          filename = `ABILITIES/${num}.${format}`;
         }
         if (imageCache[filename]) {
           return `data:image/${format};base64,${imageCache[filename]}`;
@@ -604,9 +604,9 @@
       if (type === 'champion') {
         return `small pics/${num}.${format}`;
       } else if (type === 'element') {
-        return `https://coomidex.app/elements/${num.toLowerCase()}.${format}`;
+        return `ELEMENTS/${num.toLowerCase()}.${format}`;
       } else if (type === 'ability') {
-        return `https://coomidex.app/abilities/${num}.${format}`;
+        return `https://coomidex.app/ABILITIES/${num}.${format}`;
       }
     }
 
@@ -1098,7 +1098,7 @@
             })
             .catch(() => {
               console.log(`Element image ${champion.element} not found`);
-              elementImg.src = `elements/${champion.element.toLowerCase()}.png`; // Fallback to direct path
+              elementImg.src = `ELEMENTS/${champion.element.toLowerCase()}.png`; // Fallback to direct path
             });
           elementImg.alt = champion.element;
           elementImg.style.height = '40px';
@@ -1134,7 +1134,7 @@
               })
               .catch(() => {
                 console.log(`Ability image ${abilityName} not found`);
-                abilityImg.src = `https://coomidex.app/abilities/${abilityName}.png`; // Fallback to full URL
+                abilityImg.src = `ABILITIES/${abilityName}.png`; // Fallback to direct path
               });
             abilityImg.alt = ability;
             abilityImg.style.height = '40px';
