@@ -473,10 +473,10 @@
   <!-- GENERATION SELECTOR -->
   <div class="gen-selector">
     <div class="gen-option selected">Core Set</div>
-    <div class="gen-option">Gen 1</div>
-    <div class="gen-option">Gen 2</div>
+    <div class="gen-option">Elemental Warfare</div>
     <div class="gen-option">Gen 3</div>
-    <div class="gen-option">Gen 4</div>
+    <div class="gen-option">Gen 2</div>
+    <div class="gen-option">Gen 1</div>
   </div>
 
   <!-- SCROLLABLE GRID -->
@@ -578,7 +578,7 @@
     }
 
     // Create grid items and check for available images
-    for (let i = 1; i <= 1500; i++) {  // Changed back to 1500
+    for (let i = 157; i <= 1500; i++) {  // Changed to start from 157
       const div = document.createElement('div');
       div.classList.add('grid-item');
       div.dataset.championNumber = i;
