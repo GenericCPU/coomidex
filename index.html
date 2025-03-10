@@ -60,10 +60,9 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: transform 0.2s;
     }
     .grid-item:hover {
-      transform: scale(1.05);
+      /* Removed transform scale effect */
     }
     .grid-item img {
       max-width: 93px;
@@ -99,14 +98,14 @@
       bottom: 0; left: 0;
       width: 100%;
       height: 320px;
-      background-color: #1b1b1b;
+      background-color: #151515; /* Darker background */
       z-index: 1000;
       display: flex;
       align-items: flex-start;
       justify-content: center; 
       gap: 0; /* no gap in the middle */
       padding: 0;
-    }x
+    }
 
     /* CHAMPION PANELS (each ~50% width) */
     .champion-panel {
@@ -116,6 +115,8 @@
       display: flex;
       flex-direction: column;
       border-radius: 0; /* no extra background color */
+      overflow: hidden; /* ensure content stays within panel */
+      background-color: #151515; /* Match footer color */
     }
 
     /* SLEEK TOP BAR (reduced height) */
@@ -134,12 +135,12 @@
 
     /* Left panel trapezoid (angled on left side only) */
     #orangePanel .panel-top-bar {
-      clip-path: polygon(0% 0%, 15% 100%, 100% 100%, 100% 0%);
+      clip-path: polygon(0% 0%, 10% 100%, 100% 100%, 100% 0%);
     }
 
     /* Right panel trapezoid (angled on right side only) */
     #bluePanel .panel-top-bar {
-      clip-path: polygon(0% 0%, 0% 100%, 85% 100%, 100% 0%);
+      clip-path: polygon(0% 0%, 0% 100%, 90% 100%, 100% 0%);
     }
 
     .panel-top-bar.orange { 
@@ -151,11 +152,11 @@
                  inset 0 0 15px rgba(255, 255, 255, 0.3);
     }
     .panel-top-bar.blue { 
-      background-color: #00ffff;  /* Match selector cyan */
-      box-shadow: 0 0 15px rgba(0, 255, 255, 0.7),
-                 0 0 30px rgba(0, 255, 255, 0.4),
-                 0 0 45px rgba(0, 255, 255, 0.2),
-                 0 0 60px rgba(0, 255, 255, 0.1),
+      background-color: #00ccff;  /* More vibrant blue */
+      box-shadow: 0 0 15px rgba(0, 204, 255, 0.7),
+                 0 0 30px rgba(0, 204, 255, 0.4),
+                 0 0 45px rgba(0, 204, 255, 0.2),
+                 0 0 60px rgba(0, 204, 255, 0.1),
                  inset 0 0 15px rgba(255, 255, 255, 0.3);
     }
 
@@ -170,7 +171,7 @@
       flex: 1; /* fill leftover vertical space */
       display: flex;
       flex-direction: row;
-      padding: 10px 20px;
+      padding: 10px 0px 10px 20px; /* Remove right padding */
       gap: 10px;  /* Reduce default gap from 20px to 10px */
       overflow: hidden; /* ensure content fits within panel */
     }
@@ -493,21 +494,67 @@
 
   <script>
     /*******************************************************
-     * 1) CREATE THE GRID OF 151 CHAMPIONS
+     * 1) CREATE THE GRID OF CHAMPIONS
      *******************************************************/
     const gridContainer = document.getElementById('gridContainer');
     let activeCoin = document.getElementById('selectorOrange');  // Start with orange
 
-    for (let i = 1; i <= 151; i++) {
+    // Function to try loading both image formats
+    function tryLoadImage(num) {
+      return new Promise((resolve, reject) => {
+        // Try png first (since that's what most images are)
+        const pngImg = new Image();
+        pngImg.onload = () => {
+          console.log(`Loaded PNG for champion ${num}`);
+          resolve('png');
+        };
+        pngImg.onerror = () => {
+          // If png fails, try webp
+          const webpImg = new Image();
+          webpImg.onload = () => {
+            console.log(`Loaded WEBP for champion ${num}`);
+            resolve('webp');
+          };
+          webpImg.onerror = () => {
+            // If webp fails, try jpg as last resort
+            const jpgImg = new Image();
+            jpgImg.onload = () => {
+              console.log(`Loaded JPG for champion ${num}`);
+              resolve('jpg');
+            };
+            jpgImg.onerror = () => {
+              console.log(`No image found for champion ${num}`);
+              reject('no image found');
+            };
+            jpgImg.src = `small pics/${num}.jpg`;
+          };
+          webpImg.src = `small pics/${num}.webp`;
+        };
+        pngImg.src = `small pics/${num}.png`;
+      });
+    }
+
+    // Create grid items and check for available images
+    for (let i = 1; i <= 1500; i++) {
       const div = document.createElement('div');
       div.classList.add('grid-item');
       div.dataset.championNumber = i;
-      // "card pics/1.png" for big card, "small pics/1.png" for the small thumb
       div.dataset.cardImg = 'card pics/' + i + '.png';
-
+      
       const img = document.createElement('img');
-      img.src = 'small pics/' + i + '.png';
       img.alt = 'Champion ' + i;
+      
+      // Try loading both formats
+      tryLoadImage(i)
+        .then(format => {
+          img.src = `small pics/${i}.${format}`;
+          div.style.display = 'flex';
+          console.log(`Champion ${i} loaded successfully with format: ${format}`);
+        })
+        .catch(() => {
+          div.style.display = 'none';
+          console.log(`Champion ${i} has no available image`);
+        });
 
       div.appendChild(img);
       gridContainer.appendChild(div);
@@ -706,26 +753,7 @@
         evoEl.innerHTML = '';
         const baseNum = Math.floor((parseInt(champNum) - 1) / 3) * 3 + 1;
         [baseNum, baseNum + 1, baseNum + 2].forEach(num => {
-          const div = document.createElement('div');
-          div.className = 'evolution-item';
-          
-          // Add small image (add 1 to match image numbers)
-          const img = document.createElement('img');
-          img.src = `small pics/${num + 1}.png`;  // Add +1 to match image numbers
-          img.alt = `Champion ${num}`;
-          div.appendChild(img);
-          
-          // Add name
-          const name = document.createElement('div');
-          name.className = 'evolution-name';
-          name.textContent = `Champion ${num}`;
-          div.appendChild(name);
-          
-          // Highlight current evolution
-          if (num === parseInt(champNum)) {
-            div.classList.add('current');
-          }
-          
+          const div = createEvolutionItem(num + 1, `Champion ${num}`, num === parseInt(champNum));
           evoEl.appendChild(div);
         });
         
@@ -847,26 +875,7 @@
       
       // Create evolution boxes in the correct order
       evolutions.forEach((evo, index) => {
-        const div = document.createElement('div');
-        div.className = 'evolution-item';
-        
-        // Add small image using the found champion number
-        const img = document.createElement('img');
-        img.src = `small pics/${evoNumbers[index] || parseInt(champNum)}.png`;
-        img.alt = evo;
-        div.appendChild(img);
-        
-        // Add name
-        const name = document.createElement('div');
-        name.className = 'evolution-name';
-        name.textContent = evo;
-        div.appendChild(name);
-        
-        // Highlight current evolution
-        if (champion.name === evo) {
-          div.classList.add('current');
-        }
-        
+        const div = createEvolutionItem(evoNumbers[index] || parseInt(champNum), evo, champion.name === evo);
         evoContainer.appendChild(div);
       });
 
@@ -939,8 +948,9 @@
       
       // Add element and ability text below circles
       const extraStats = document.createElement('div');
+      extraStats.className = 'extraStats';  // Add a class for easier reference
       extraStats.style.marginTop = '10px';
-      extraStats.style.marginBottom = '2px'; // Reduced margin to move buy button up
+      extraStats.style.marginBottom = '2px';
       extraStats.style.color = '#fff';
       extraStats.style.display = 'flex';
       extraStats.style.alignItems = 'center';
@@ -1002,87 +1012,124 @@
       }
       statsEl.appendChild(extraStats);
 
-      // Show the buy button
-      buyBtnEl.className = '';  // Remove default classes
-      buyBtnEl.style.display = 'flex';
-      buyBtnEl.style.alignItems = 'center';
-      buyBtnEl.style.justifyContent = 'center';
-      buyBtnEl.style.gap = '0';
-      buyBtnEl.style.cursor = 'pointer';
-      buyBtnEl.style.transition = 'all 0.2s ease';
-      buyBtnEl.style.border = 'none';
-      buyBtnEl.style.outline = 'none';
-      buyBtnEl.style.boxShadow = 'none';
-      buyBtnEl.style.padding = '0';
-      buyBtnEl.style.margin = '0'; // Remove vertical margin
-      buyBtnEl.style.backgroundColor = 'transparent';
-      buyBtnEl.style.appearance = 'none';
-      buyBtnEl.style.WebkitAppearance = 'none';
-      buyBtnEl.style.MozAppearance = 'none';
-      buyBtnEl.style.width = '100%'; // Take full width to allow centering
+      // Show the buy button - wait for next frame to ensure extraStats width is calculated
+      requestAnimationFrame(() => {
+        buyBtnEl.className = '';
+        buyBtnEl.style.display = 'flex';
+        buyBtnEl.style.alignItems = 'center';
+        buyBtnEl.style.justifyContent = 'center';
+        buyBtnEl.style.gap = '0';
+        buyBtnEl.style.cursor = 'pointer';
+        buyBtnEl.style.transition = 'all 0.2s ease';
+        buyBtnEl.style.border = 'none';
+        buyBtnEl.style.outline = 'none';
+        buyBtnEl.style.boxShadow = 'none';
+        buyBtnEl.style.padding = '0';
+        buyBtnEl.style.margin = '0';
+        buyBtnEl.style.backgroundColor = 'transparent';
+        buyBtnEl.style.appearance = 'none';
+        buyBtnEl.style.WebkitAppearance = 'none';
+        buyBtnEl.style.MozAppearance = 'none';
+        buyBtnEl.style.width = extraStats.offsetWidth + 'px';
 
-      // Create container for pill shape
-      const pillContainer = document.createElement('div');
-      pillContainer.style.display = 'flex';
-      pillContainer.style.backgroundColor = '#000';
-      pillContainer.style.borderRadius = '100px';
-      pillContainer.style.overflow = 'hidden';
-      pillContainer.style.width = 'fit-content';
-      pillContainer.style.margin = '0 auto'; // Center horizontally
+        // Create container for pill shape
+        const pillContainer = document.createElement('div');
+        pillContainer.style.display = 'flex';
+        pillContainer.style.backgroundColor = '#000';
+        pillContainer.style.borderRadius = '100px';
+        pillContainer.style.overflow = 'hidden';
+        pillContainer.style.width = 'fit-content';
+        pillContainer.style.margin = '0 auto'; // Center horizontally
 
-      // Create HandCash logo section (left side)
-      const logoSection = document.createElement('div');
-      logoSection.style.padding = '8px 6px 8px 12px';  // Reduced right padding
-      logoSection.style.backgroundColor = 'transparent';
-      logoSection.style.display = 'flex';
-      logoSection.style.alignItems = 'center';
-
-      // Create HandCash logo
-      const handcashLogo = document.createElement('img');
-      handcashLogo.src = 'handcash.webp';
-      handcashLogo.alt = 'HandCash';
-      handcashLogo.style.height = '20px';
-      handcashLogo.style.width = '20px';
-      handcashLogo.style.objectFit = 'contain';
-
-      // Create price section (right side)
-      const priceSection = document.createElement('div');
-      priceSection.style.display = 'flex';
-      priceSection.style.alignItems = 'center';
-      priceSection.style.padding = '8px 12px 8px 6px';  // Reduced left padding
-      priceSection.style.backgroundColor = 'transparent';
-      priceSection.style.border = 'none';
-
-      // Create price text
-      const priceText = document.createElement('span');
-      priceText.style.color = '#fff';
-      priceText.style.fontSize = '14px';
-      priceText.style.fontWeight = 'bold';
-      priceText.textContent = `$${(champion.price || 4.99).toFixed(2)}`;  // Default to $4.99 if no price
-
-      // Hover effects
-      buyBtnEl.onmouseover = () => {
+        // Create HandCash logo section (left side)
+        const logoSection = document.createElement('div');
+        logoSection.style.padding = '8px 6px 8px 12px';  // Reduced right padding
         logoSection.style.backgroundColor = 'transparent';
+        logoSection.style.display = 'flex';
+        logoSection.style.alignItems = 'center';
+
+        // Create HandCash logo
+        const handcashLogo = document.createElement('img');
+        handcashLogo.src = 'handcash.webp';
+        handcashLogo.alt = 'HandCash';
+        handcashLogo.style.height = '20px';
+        handcashLogo.style.width = '20px';
+        handcashLogo.style.objectFit = 'contain';
+
+        // Create price section (right side)
+        const priceSection = document.createElement('div');
+        priceSection.style.display = 'flex';
+        priceSection.style.alignItems = 'center';
+        priceSection.style.padding = '8px 12px 8px 6px';  // Reduced left padding
         priceSection.style.backgroundColor = 'transparent';
-      };
-      buyBtnEl.onmouseout = () => {
-        logoSection.style.backgroundColor = 'transparent';
-        priceSection.style.backgroundColor = 'transparent';
-      };
+        priceSection.style.border = 'none';
 
-      buyBtnEl.onclick = () => {
-        window.open(`https://handcash.io/pay/${champion.handcashHandle || 'unknown'}`, '_blank');
-      };
+        // Create price text
+        const priceText = document.createElement('span');
+        priceText.style.color = '#fff';
+        priceText.style.fontSize = '14px';
+        priceText.style.fontWeight = 'bold';
+        priceText.textContent = `$${(champion.price || 4.99).toFixed(2)}`;  // Default to $4.99 if no price
 
-      // Assemble the widget
-      logoSection.appendChild(handcashLogo);
-      priceSection.appendChild(priceText);
+        // Hover effects
+        buyBtnEl.onmouseover = () => {
+          logoSection.style.backgroundColor = 'transparent';
+          priceSection.style.backgroundColor = 'transparent';
+        };
+        buyBtnEl.onmouseout = () => {
+          logoSection.style.backgroundColor = 'transparent';
+          priceSection.style.backgroundColor = 'transparent';
+        };
 
-      pillContainer.appendChild(logoSection);
-      pillContainer.appendChild(priceSection);
+        buyBtnEl.onclick = () => {
+          window.open(`https://handcash.io/pay/${champion.handcashHandle || 'unknown'}`, '_blank');
+        };
 
-      buyBtnEl.innerHTML = '';
-      buyBtnEl.appendChild(pillContainer);
+        // Assemble the widget
+        logoSection.appendChild(handcashLogo);
+        priceSection.appendChild(priceText);
+
+        pillContainer.appendChild(logoSection);
+        pillContainer.appendChild(priceSection);
+
+        buyBtnEl.innerHTML = '';
+        buyBtnEl.appendChild(pillContainer);
+      });
+    }
+
+    // Update the evolution items image loading as well
+    function createEvolutionItem(num, evo, isCurrentEvolution) {
+      const div = document.createElement('div');
+      div.className = 'evolution-item';
+      
+      // Add small image using the found champion number
+      const img = document.createElement('img');
+      
+      // Try loading both formats
+      tryLoadImage(num)
+        .then(format => {
+          img.src = `small pics/${num}.${format}`;
+        })
+        .catch(() => {
+          console.log(`Evolution image ${num} not found in either format`);
+          img.src = 'placeholder.png'; // You might want to add a placeholder image
+        });
+      
+      img.alt = evo;
+      div.appendChild(img);
+      
+      // Add name
+      const name = document.createElement('div');
+      name.className = 'evolution-name';
+      name.textContent = evo;
+      div.appendChild(name);
+      
+      // Highlight current evolution
+      if (isCurrentEvolution) {
+        div.classList.add('current');
+      }
+      
+      return div;
     }
   </script>
 </body>
