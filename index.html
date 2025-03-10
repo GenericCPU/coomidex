@@ -604,7 +604,7 @@
       if (type === 'champion') {
         return `small pics/${num}.${format}`;
       } else if (type === 'element') {
-        return `elements/${num.toLowerCase()}.${format}`;
+        return `https://coomidex.app/elements/${num.toLowerCase()}.${format}`;
       } else if (type === 'ability') {
         return `https://coomidex.app/abilities/${num}.${format}`;
       }
@@ -1134,7 +1134,7 @@
               })
               .catch(() => {
                 console.log(`Ability image ${abilityName} not found`);
-                abilityImg.src = `abilities/${abilityName}.png`; // Fallback to direct path
+                abilityImg.src = `https://coomidex.app/abilities/${abilityName}.png`; // Fallback to full URL
               });
             abilityImg.alt = ability;
             abilityImg.style.height = '40px';
