@@ -600,7 +600,7 @@
           return `data:image/${format};base64,${imageCache[filename]}`;
         }
       }
-      // Fallback paths
+      // Fallback paths - ensure all paths are relative to the same base
       if (type === 'champion') {
         return `small pics/${num}.${format}`;
       } else if (type === 'element') {
@@ -1098,7 +1098,7 @@
             })
             .catch(() => {
               console.log(`Element image ${champion.element} not found`);
-              elementImg.src = `elements/${champion.element.toLowerCase()}.png`; // Fallback
+              elementImg.src = `elements/${champion.element.toLowerCase()}.png`; // Fallback to direct path
             });
           elementImg.alt = champion.element;
           elementImg.style.height = '40px';
@@ -1134,7 +1134,7 @@
               })
               .catch(() => {
                 console.log(`Ability image ${abilityName} not found`);
-                abilityImg.src = `abilities/${abilityName}.png`; // Fallback
+                abilityImg.src = `abilities/${abilityName}.png`; // Fallback to direct path
               });
             abilityImg.alt = ability;
             abilityImg.style.height = '40px';
