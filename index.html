@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>CoOMidex - Final Two-Column Panels</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <style>
     /* RESET */
     * {
@@ -542,7 +543,60 @@
     const gridContainer = document.getElementById('gridContainer');
     let activeCoin = document.getElementById('selectorOrange');  // Start with orange
 
-    // Function to try loading both image formats
+    // Function to download and unzip images
+    async function downloadAndCacheImages() {
+      try {
+        // Check if images are already cached
+        const cachedImages = localStorage.getItem('championImages');
+        if (cachedImages) {
+          console.log('Images already cached in local storage');
+          return;
+        }
+
+        console.log('Downloading and caching images...');
+        
+        // Download the zip file
+        const response = await fetch('champion_images.zip');
+        const zipBlob = await response.blob();
+        
+        // Use JSZip to unzip the file
+        const zip = new JSZip();
+        const unzipped = await zip.loadAsync(zipBlob);
+        
+        // Create an object to store all images
+        const imageCache = {};
+        
+        // Process each file in the zip
+        for (const [filename, file] of Object.entries(unzipped.files)) {
+          if (file.dir) continue; // Skip directories
+          
+          // Convert the file to base64
+          const base64 = await file.async('base64');
+          imageCache[filename] = base64;
+        }
+        
+        // Store in local storage
+        localStorage.setItem('championImages', JSON.stringify(imageCache));
+        console.log('Images successfully cached in local storage');
+      } catch (error) {
+        console.error('Error downloading/caching images:', error);
+      }
+    }
+
+    // Function to get image from cache or load normally
+    function getImageFromCache(num, format) {
+      const cachedImages = localStorage.getItem('championImages');
+      if (cachedImages) {
+        const imageCache = JSON.parse(cachedImages);
+        const filename = `${num}.${format}`;
+        if (imageCache[filename]) {
+          return `data:image/${format};base64,${imageCache[filename]}`;
+        }
+      }
+      return `small pics/${num}.${format}`;
+    }
+
+    // Modified tryLoadImage function to use cache
     function tryLoadImage(num) {
       return new Promise((resolve, reject) => {
         // Try png first (since that's what most images are)
@@ -569,57 +623,79 @@
               console.log(`No image found for champion ${num}`);
               reject('no image found');
             };
-            jpgImg.src = `small pics/${num}.jpg`;
+            jpgImg.src = getImageFromCache(num, 'jpg');
           };
-          webpImg.src = `small pics/${num}.webp`;
+          webpImg.src = getImageFromCache(num, 'webp');
         };
-        pngImg.src = `small pics/${num}.png`;
+        pngImg.src = getImageFromCache(num, 'png');
       });
     }
 
-    // Create grid items and check for available images
-    for (let i = 157; i <= 1500; i++) {  // Changed to start from 157
-      const div = document.createElement('div');
-      div.classList.add('grid-item');
-      div.dataset.championNumber = i;
-      div.style.display = 'none';  // Hide by default until image loads
-      
-      const img = document.createElement('img');
-      img.alt = 'Champion ' + i;
-      
-      // Try loading both formats
-      tryLoadImage(i)
-        .then(format => {
-          img.src = `small pics/${i}.${format}`;
-          div.style.display = 'flex';  // Only show if image loads successfully
+    // Load champions data first
+    fetch('./champions.json')
+      .then(response => response.json())
+      .then(data => {
+        championsData = data;
+        console.log('Data loaded, length:', data.length);
+        
+        // Start downloading and caching images
+        downloadAndCacheImages();
+        
+        // Filter for Gen 7 (Core Set) champions
+        const coreSetChampions = championsData.filter(c => c.generation === 7);
+        console.log('Core Set champions:', coreSetChampions.length);
+
+        // Create grid items for Core Set champions
+        coreSetChampions.forEach(champion => {
+          const div = document.createElement('div');
+          div.classList.add('grid-item');
+          div.dataset.championNumber = champion.championNumber;
+          div.style.display = 'none';  // Hide by default until image loads
           
-          // Find champion data to get correct card number
-          const champion = championsData.find(c => c.championNumber === i);
-          if (champion) {
-            div.dataset.cardImg = `card pics/${champion.championNumber}.png`;
-            console.log(`Champion ${i} found in data with name: ${champion.name}`);
-          } else {
-            div.dataset.cardImg = `card pics/${i}.png`;
-            console.log(`Champion ${i} not found in data, using number directly`);
-          }
-        })
-        .catch(() => {
-          div.style.display = 'none';  // Ensure it stays hidden if no image found
-          console.log(`Champion ${i} has no available image`);
+          const img = document.createElement('img');
+          img.alt = champion.name;
+          
+          // Try loading both formats
+          tryLoadImage(champion.championNumber)
+            .then(format => {
+              img.src = getImageFromCache(champion.championNumber, format);
+              div.style.display = 'flex';  // Only show if image loads successfully
+              div.dataset.cardImg = `card pics/${champion.championNumber}.png`;
+              console.log(`Champion ${champion.championNumber} (${champion.name}) loaded successfully`);
+            })
+            .catch(() => {
+              div.style.display = 'none';  // Ensure it stays hidden if no image found
+              console.log(`Champion ${champion.championNumber} (${champion.name}) has no available image`);
+            });
+
+          div.appendChild(img);
+          gridContainer.appendChild(div);
+
+          // Clicking => place the active coin on that square (snap)
+          div.addEventListener('click', () => {
+            placeCoinOnSquare(activeCoin, div);
+            // Toggle active coin for next click
+            activeCoin = (activeCoin === document.getElementById('selectorOrange')) 
+              ? document.getElementById('selectorBlue')
+              : document.getElementById('selectorOrange');
+          });
         });
 
-      div.appendChild(img);
-      gridContainer.appendChild(div);
-
-      // Clicking => place the active coin on that square (snap)
-      div.addEventListener('click', () => {
-        placeCoinOnSquare(activeCoin, div);
-        // Toggle active coin for next click
-        activeCoin = (activeCoin === document.getElementById('selectorOrange')) 
-          ? document.getElementById('selectorBlue')
-          : document.getElementById('selectorOrange');
+        // Force refresh any displayed champions
+        if (selectedItemOrange) {
+          const champNum = selectedItemOrange.dataset.championNumber;
+          const cardImg = selectedItemOrange.dataset.cardImg;
+          updateChampionPanel('orange', champNum, cardImg);
+        }
+        if (selectedItemBlue) {
+          const champNum = selectedItemBlue.dataset.championNumber;
+          const cardImg = selectedItemBlue.dataset.cardImg;
+          updateChampionPanel('blue', champNum, cardImg);
+        }
+      })
+      .catch(error => {
+        console.error('Error loading champions data:', error);
       });
-    }
 
     /*******************************************************
      * 2) DRAGGABLE COINS (no snap-on-drop unless click)
@@ -737,28 +813,6 @@
      * 3) UPDATE BOTTOM PANELS
      *******************************************************/
     let championsData = [];  // Will store the loaded champion data
-
-    // Load champions data when page loads
-    fetch('./champions.json')
-      .then(response => response.json())
-      .then(data => {
-        championsData = data;
-        console.log('Data loaded, length:', data.length);
-        // Force refresh any displayed champions
-        if (selectedItemOrange) {
-          const champNum = selectedItemOrange.dataset.championNumber;
-          const cardImg = selectedItemOrange.dataset.cardImg;
-          updateChampionPanel('orange', champNum, cardImg);
-        }
-        if (selectedItemBlue) {
-          const champNum = selectedItemBlue.dataset.championNumber;
-          const cardImg = selectedItemBlue.dataset.cardImg;
-          updateChampionPanel('blue', champNum, cardImg);
-        }
-      })
-      .catch(error => {
-        console.error('Error loading champions data:', error);
-      });
 
     function updateChampionPanel(coin, champNum, cardImg) {
       console.log('Updating panel for champion:', champNum);
@@ -1163,7 +1217,7 @@
       // Try loading both formats
       tryLoadImage(num)
         .then(format => {
-          img.src = `small pics/${num}.${format}`;
+          img.src = getImageFromCache(num, format);
         })
         .catch(() => {
           console.log(`Evolution image ${num} not found in either format`);
