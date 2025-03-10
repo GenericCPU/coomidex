@@ -1041,18 +1041,25 @@
           abilitySection.style.alignItems = 'center';
           abilitySection.style.justifyContent = 'center';
           abilitySection.style.flex = '1'; // Add flex 1
+          abilitySection.style.gap = '4px'; // Add gap between dual abilities
 
-          const abilityImg = document.createElement('img');
-          const abilityName = champion.ability
-            .replace(/\s*\(\d+\)\s*/g, '') // Remove (X) and any surrounding whitespace where X is any number
-            .replace(/\s+/g, ''); // Remove spaces entirely to create camelCase
-          abilityImg.src = `abilities/${abilityName}.png`;
-          abilityImg.alt = champion.ability;
-          abilityImg.style.height = '40px';
-          abilityImg.style.width = '40px';
-          abilityImg.style.objectFit = 'contain';
+          // Split abilities if there's a |
+          const abilities = champion.ability.split('|').map(a => a.trim());
           
-          abilitySection.appendChild(abilityImg);
+          abilities.forEach(ability => {
+            const abilityImg = document.createElement('img');
+            const abilityName = ability
+              .replace(/\s*\(\d+\)\s*/g, '') // Remove (X) and any surrounding whitespace where X is any number
+              .replace(/\s+/g, ''); // Remove spaces entirely to create camelCase
+            abilityImg.src = `abilities/${abilityName}.png`;
+            abilityImg.alt = ability;
+            abilityImg.style.height = '40px';
+            abilityImg.style.width = '40px';
+            abilityImg.style.objectFit = 'contain';
+            
+            abilitySection.appendChild(abilityImg);
+          });
+          
           extraStats.appendChild(abilitySection);
           hasIcons++;
         }
